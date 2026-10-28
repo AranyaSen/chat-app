@@ -1,0 +1,12 @@
+model Notifications {
+    id         String   @id @default(uuid())
+    user_id    String   @unique
+    message_id String   @unique
+    created_at DateTime @default(now())
+    read_at    DateTime @default(now())
+
+    // relations
+    user Users @relation(fields: [user_id], references: [id], onDelete: Restrict)
+
+    @@index([user_id, read_at])
+}

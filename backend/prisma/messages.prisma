@@ -1,0 +1,14 @@
+model Messages {
+    id              String    @id @default(uuid())
+    conversation_id String
+    sender_id       String
+    content         String
+    sent_at         DateTime  @default(now())
+    edited_at       DateTime?
+    deleted_at      DateTime?
+
+    // relations
+    user Users @relation(fields: [sender_id], references: [id], onDelete: Restrict)
+
+    @@index([conversation_id, sent_at])
+}

@@ -1,0 +1,14 @@
+model Groups {
+    id              String   @id @default(uuid())
+    conversation_id String
+    created_by      String
+    name            String
+    description     String?
+    avatar          String?
+    max_members     Int      @default(10)
+    created_at      DateTime @default(now())
+    updated_at      DateTime @updatedAt
+
+    // relations
+    users Users @relation(fields: [created_by], references: [id], onDelete: Restrict)
+}

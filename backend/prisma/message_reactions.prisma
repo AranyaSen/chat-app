@@ -1,0 +1,10 @@
+model Message_Reactions {
+    id         String   @id @default(uuid())
+    message_id String   @unique
+    user_id    String   @unique
+    reaction   String   @unique
+    created_at DateTime @default(now())
+
+    // relations
+    user Users? @relation(fields: [user_id], references: [id], onDelete: Restrict)
+}

@@ -1,0 +1,13 @@
+enum ConversationType {
+    DIRECT
+    GROUP
+}
+
+model Conversations {
+    id              String           @id @default(uuid())
+    type            ConversationType @default(DIRECT)
+    last_message_id String           @default("")
+    createdAt       DateTime         @default(now())
+
+    // relations
+}

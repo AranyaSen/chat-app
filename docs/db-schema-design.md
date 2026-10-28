@@ -9,6 +9,7 @@ Columns are NOT NULL unless marked nullable.
 id: uuid PK
 username: varchar(50) unique
 email: varchar(255) unique
+name: varchar(255)
 password_hash: varchar(255)
 role: enum default:USER
 image: varchar(500) nullable
@@ -32,6 +33,8 @@ name: varchar(100)
 description: varchar(500) nullable
 avatar: varchar(500) nullable
 max_members: int default:10
+created_at: timestamptz
+updated_at: timestamptz
 
 ## conversation_members
 

@@ -1,0 +1,19 @@
+enum MemberRole {
+    OWNER
+    MEMBER
+}
+
+model Conversation_Members {
+    id                String     @id @default(uuid())
+    conversation_id   String
+    user_id           String
+    role              MemberRole @default(MEMBER)
+    joined_at         DateTime   @default(now())
+    left_at           DateTime?  @default(now())
+    last_message_read String?
+
+    // relations
+    user Users @relation(fields: [user_id], references: [id], onDelete: Restrict)
+
+    @@unique([conversation_id, user_id])
+}
