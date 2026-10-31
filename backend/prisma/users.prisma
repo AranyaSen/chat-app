@@ -4,16 +4,18 @@ enum UserRole {
 }
 
 model Users {
-    id            String   @id @default(uuid())
-    username      String   @unique
-    email         String   @unique
-    password_hash String
-    role          UserRole @default(USER)
-    name          String
-    image         String?
-    is_active     Boolean  @default(true)
-    createdAt     DateTime @default(now())
-    updatedAt     DateTime @updatedAt
+    id               String   @id @default(uuid())
+    username         String   @unique
+    email            String   @unique
+    password_hash    String
+    role             UserRole @default(USER)
+    name             String
+    image            String?
+    is_active        Boolean  @default(true)
+    is_verified      Boolean  @default(false)
+    email_token_hash String?  @unique
+    createdAt        DateTime @default(now())
+    updatedAt        DateTime @updatedAt
 
     // relations
     conversations_members Conversation_Members[]

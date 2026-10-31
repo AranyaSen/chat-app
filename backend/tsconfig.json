@@ -10,6 +10,8 @@
     "strict": true,
     "skipLibCheck": true,
 
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+
     "paths": {
       "@/*": ["./src/*"]
     }
