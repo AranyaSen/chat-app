@@ -4,6 +4,7 @@ import { healthRouter } from "./routes/health.routes.js";
 import { env } from "@/config/env.js";
 import { authRoutes } from "./routes/index.js";
 import { errorHandler } from "./middleware/error.middleware.js";
+import cookieParser from "cookie-parser";
 
 export const createApp = () => {
   const app = express();
@@ -17,6 +18,7 @@ export const createApp = () => {
   );
 
   app.use(express.json());
+  app.use(cookieParser());
 
   // Health routes
   app.use(healthRouter);

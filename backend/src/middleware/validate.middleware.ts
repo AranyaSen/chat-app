@@ -1,8 +1,14 @@
 import { NextFunction, Request, Response } from "express";
-import { ZodType } from "zod";
+import { z } from "zod";
 
-export const validate = (schema: ZodType) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+const requestSchema = z.object({
+  body: z.unknown().optional(),
+  params: z.unknown().optional(),
+  query: z.unknown().optional(),
+});
+
+export const validate = (schema: z.ZodType) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     const result = schema.safeParse({
       body: req.body,
       params: req.params,
@@ -10,19 +16,31 @@ export const validate = (schema: ZodType) => {
     });
 
     if (!result.success) {
-      const errors = result.error.issues.map((i) => ({
-        field: i.path.join("."),
-        message: i.message,
+      const errors = result.error.issues.map((issue) => ({
+        field: issue.path.join("."),
+        message: issue.message,
       }));
 
       return res.status(400).json({
         success: false,
         message: "Validation failed",
-        error: errors,
+        errors,
       });
     }
 
-    req.body = result.data;
+    const validated = result.data as z.infer<typeof requestSchema>;
+
+    if (validated.body !== undefined) {
+      req.body = validated.body;
+    }
+
+    if (validated.params !== undefined) {
+      req.params = validated.params as Request["params"];
+    }
+
+    if (validated.query !== undefined) {
+      req.query = validated.query as Request["query"];
+    }
 
     next();
   };

@@ -5,7 +5,7 @@ export const generateEmailToken = () => {
 
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-  return hashedToken;
+  return { hashedToken, token };
 };
 
 export const createHashedToken = (rawToken: string) => {

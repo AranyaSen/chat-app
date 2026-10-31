@@ -3,6 +3,8 @@ import {
   createUser,
   findUserByEmailToken,
   findUserByUsernameOrEmail,
+  requestChangeEmail,
+  updateEmailTokenHash,
   updateUserVerifiedStatus,
 } from "./auth.repo.js";
 import { LoginType, RegisterType } from "./auth.validation.js";
@@ -30,14 +32,11 @@ export class AuthService {
 
     const hashedPassword = await hashPassword(data.password);
 
-    const hashedToken = generateEmailToken();
-
     const user = await createUser({
       name: data.name,
       username: data.username,
       email: data.email,
       hashedPassword,
-      hashedToken,
     });
 
     return user;
@@ -50,16 +49,21 @@ export class AuthService {
       throw new AppError("Invalid username or password", 401);
     }
 
+    // Verify password against argon2 hashed password
     const passwordMatches = await verifyPassword(
-      user.password_hash,
       data.password,
+      user.password_hash,
     );
+
     if (!passwordMatches) {
       throw new AppError("Invalid username or password", 401);
     }
 
-    if (!user.is_verified) {
-      const verificationLink = `${env.EMAIL_VERIFICATION_LINK}?token=${user.email_token_hash}`;
+    if (user.is_active && !user.is_verified) {
+      const { hashedToken, token } = generateEmailToken();
+      const verificationLink = `${env.EMAIL_VERIFICATION_LINK}?token=${token}`;
+
+      await updateEmailTokenHash({ userEmail: user.email, hashedToken });
 
       await transporter.sendMail({
         from: "Chat-app",
@@ -70,6 +74,15 @@ export class AuthService {
           <p>Please click the link below to verify your email address:</p>
           <a href="${verificationLink}">Verify Email</a>`,
       });
+
+      throw new AppError(
+        "Email verification required. Please check your inbox.",
+        403,
+      );
+    }
+
+    if (!user.is_active) {
+      throw new AppError("Your account has been deactivated", 403);
     }
 
     const payload = {
@@ -84,6 +97,28 @@ export class AuthService {
     const refreshToken = await generateRefreshToken(payload);
 
     return { user, accessToken, refreshToken };
+  }
+
+  static async changeEmail({
+    userId,
+    email,
+  }: {
+    userId: string;
+    email: string;
+  }) {
+    const { hashedToken, token } = generateEmailToken();
+    const verificationLink = `${env.EMAIL_VERIFICATION_LINK}?token=${token}`;
+
+    const user = await requestChangeEmail({ userId, email, hashedToken });
+    await transporter.sendMail({
+      from: "Chat-app",
+      to: user.email,
+      subject: "Verify your Email Address",
+      html: `
+          <h1>Welcome ${user.username}!</h1>
+          <p>Please click the link below to verify your email address:</p>
+          <a href="${verificationLink}">Verify Email</a>`,
+    });
   }
 
   static async verifyEmail({ req, token }: { req: Request; token: string }) {

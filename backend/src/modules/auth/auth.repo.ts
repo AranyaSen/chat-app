@@ -40,28 +40,70 @@ export const updateUserVerifiedStatus = async (userId: string) => {
   });
 };
 
+export const updateEmailTokenHash = async ({
+  userEmail,
+  hashedToken,
+}: {
+  userEmail: string;
+  hashedToken: string;
+}) => {
+  return await prisma.users.update({
+    where: {
+      email: userEmail,
+    },
+    data: {
+      email_token_hash: hashedToken,
+    },
+  });
+};
+
+export const requestChangeEmail = async ({
+  userId,
+  email,
+  hashedToken,
+}: {
+  userId: string;
+  email: string;
+  hashedToken: string;
+}) => {
+  return await prisma.users.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      email: email,
+      email_token_hash: hashedToken,
+      // is_verified: false,
+    },
+  });
+};
+
 export const createUser = async ({
   name,
   username,
   email,
   hashedPassword,
-  hashedToken,
 }: {
   name: string;
   username: string;
   email: string;
   hashedPassword: string;
-  hashedToken: string;
 }) => {
   const newUser = await prisma.users.create({
     data: {
-      name: name,
-      username: username,
-      email: email,
+      name,
+      username,
+      email,
       password_hash: hashedPassword,
       role: "USER",
       is_verified: false,
-      email_token_hash: hashedToken,
+    },
+    select: {
+      name: true,
+      username: true,
+      email: true,
+      id: true,
+      is_verified: true,
     },
   });
   return newUser;

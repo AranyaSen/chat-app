@@ -3,7 +3,7 @@ import { Payload } from "@/types/express.js";
 import { AppError } from "@/utils/appError.js";
 import { NextFunction, Request, Response } from "express";
 
-export const authMiddleware = async (
+export const authenticate = async (
   req: Request,
   res: Response,
   next: NextFunction,

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { AuthService } from "./auth.services.js";
 import { AppError } from "@/utils/appError.js";
+import { authConfig } from "@/config/authConfig.js";
 
 const setAuthCookies = (
   res: Response,
@@ -11,13 +12,13 @@ const setAuthCookies = (
     httpOnly: true,
     secure: true,
     sameSite: "lax",
-    maxAge: 15 * 60 * 1000,
+    maxAge: authConfig.accessMaxAgeMs,
   });
   res.cookie("chat-refresh-token", refreshToken, {
     httpOnly: true,
     secure: true,
     sameSite: "lax",
-    maxAge: 15 * 60 * 1000,
+    maxAge: authConfig.accessMaxAgeMs,
     path: "/auth/refresh",
   });
 };
@@ -68,7 +69,13 @@ export const login = async (req: Request, res: Response) => {
   return res.status(200).json({
     success: true,
     message: message,
-    data: user,
+    data: {
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      id: user.id,
+      is_verified: user.is_verified,
+    },
   });
 };
 
@@ -83,6 +90,23 @@ export const verifyEmail = async (req: Request, res: Response) => {
     success: true,
     message: "Email verified successfully",
     data: user,
+  });
+};
+
+export const changeEmail = async (req: Request, res: Response) => {
+  const { email } = req.body;
+
+  const user = req.user;
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  await AuthService.changeEmail({ userId: user.userId, email });
+  return res.status(200).json({
+    success: true,
+    message: "Email updated please verify",
+    data: null,
   });
 };
 
