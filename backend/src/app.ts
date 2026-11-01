@@ -5,6 +5,15 @@ import { env } from "@/config/env.js";
 import { authRoutes } from "./routes/index.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 import cookieParser from "cookie-parser";
+import rateLimit from "express-rate-limit";
+
+const globalRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 100,
+  message: "Too many requests, please try again",
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+});
 
 export const createApp = () => {
   const app = express();
@@ -19,6 +28,7 @@ export const createApp = () => {
 
   app.use(express.json());
   app.use(cookieParser());
+  app.use(globalRateLimiter);
 
   // Health routes
   app.use(healthRouter);

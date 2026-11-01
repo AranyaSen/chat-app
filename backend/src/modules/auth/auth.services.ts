@@ -66,7 +66,7 @@ export class AuthService {
       await updateEmailTokenHash({ userEmail: user.email, hashedToken });
 
       await transporter.sendMail({
-        from: "Chat-app",
+        from: "Chat-app <no-reply@yourdomain>",
         to: user.email,
         subject: "Verify your Email Address",
         html: `
@@ -121,7 +121,7 @@ export class AuthService {
     });
   }
 
-  static async verifyEmail({ req, token }: { req: Request; token: string }) {
+  static async verifyEmail({ token }: { token: string }) {
     const hashedToken = createHashedToken(token);
 
     const user = await findUserByEmailToken(hashedToken);

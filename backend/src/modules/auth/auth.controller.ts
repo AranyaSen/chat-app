@@ -85,7 +85,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
   if (!token || typeof token !== "string") {
     throw new AppError("Token not provided", 400);
   }
-  const user = await AuthService.verifyEmail({ req, token });
+  const user = await AuthService.verifyEmail({ token });
   return res.status(200).json({
     success: true,
     message: "Email verified successfully",

@@ -16,7 +16,7 @@ export const authenticate = async (
 
   const payload = await verifyAccessToken(token);
 
-  req.user = payload as unknown as Payload;
+  req.user = payload as Payload;
 
   next();
 };
