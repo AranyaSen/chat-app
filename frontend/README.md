@@ -1,75 +1,129 @@
-# React + TypeScript + Vite
+# Chat App — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A minimal chat frontend built with React, TypeScript, Tailwind CSS, TanStack Query, Zustand, and Axios.
 
-Currently, two official plugins are available:
+The authentication flow is wired to the Express API. The chat dashboard is a placeholder until the backend exposes messaging endpoints; it intentionally contains no demo conversations or fake users.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Stack
 
-## React Compiler
+- React 19 + Vite 8 + TypeScript
+- Tailwind CSS v4 (`src/styles/globals.css`)
+- TanStack Query for server state
+- Zustand for the persisted auth profile
+- React Hook Form + Zod for validation
+- Axios for API requests
+- Sonner for toasts
+- Custom shadcn-style primitives in `src/components/ui`
+- Lucide icons
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Getting started
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+The dev server runs at **http://localhost:4000**.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Start the backend separately:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+cd backend
+npm run dev
 ```
+
+## Environment and proxy
+
+Copy `.env.example` to `.env` if you need to change the backend origin:
+
+```bash
+API_URL=http://localhost:8888
+VITE_API_URL=
+```
+
+- `API_URL` is used by the Vite dev proxy (`/chat-app` → backend).
+- Leave `VITE_API_URL` empty in development. The Axios client uses the relative `/chat-app` base so cookies stay same-origin.
+- Set `VITE_API_URL` only when the API is deployed on a different origin without a proxy.
+
+The proxy strips the `/chat-app` prefix, so a request to `/chat-app/auth/login` reaches the backend at `/auth/login`.
+
+## Auth flow
+
+1. `/register` — create an account.
+2. `/login` — sign in with username and password.
+3. `/verify-email` — unverified accounts receive `403` and a verification email.
+4. The email link opens `/verify-email?token=...`, which calls `GET /auth/verify-email`.
+5. After verification, sign in and continue to `/app`.
+
+Access and refresh tokens stay in backend httpOnly cookies. Only the profile needed for routing and display is persisted in Zustand.
+
+### Endpoints
+
+| Client call | Endpoint |
+| --- | --- |
+| `authApi.register` | `POST /auth/register` |
+| `authApi.login` | `POST /auth/login` |
+| `authApi.verifyEmail` | `GET /auth/verify-email?token=...` |
+| `authApi.changeEmail` | `POST /auth/change-email` |
+| `authApi.refresh` | `POST /auth/refresh` |
+| `authApi.logout` | `POST /auth/logout` |
+
+Protected requests retry once through `/auth/refresh` after a `401`.
+
+## Chat dashboard
+
+`/app` currently shows:
+
+- The signed-in user
+- An empty conversation list
+- A placeholder explaining that messaging is not connected yet
+- Sign out
+
+Once the backend adds conversation/message routes, add query hooks and replace the placeholder in `src/features/chat/components/chatPlaceholder.tsx`.
+
+## Structure
+
+```text
+src/
+  app/                 App shell, providers, query client
+  components/
+    feedback/          Loaders and inline alerts
+    forms/             Reusable form field wrapper
+    layout/            Ambient background
+    routing/           Auth-aware route guards
+    ui/                Shared UI primitives
+  config/
+    env.ts             Environment validation and API base URL
+  features/
+    auth/
+      api/             Typed Axios service
+      components/      Login, register, verification UI
+      hooks/           TanStack mutations
+      types/
+      utils/
+      validation/
+    chat/
+      components/      Chat shell and placeholder
+  lib/                 Axios client, formatting, avatar, class helpers
+  pages/
+    chat/
+    login/
+    notFound/
+    register/
+    verifyEmail/
+  stores/
+    authStore.ts       Persisted auth profile
+  styles/globals.css   Design tokens and utilities
+```
+
+## Scripts
+
+```bash
+npm run dev      # start Vite on :4000
+npm run build    # type-check + production build
+npm run lint     # ESLint
+npm run preview  # preview production build
+```
+
+TypeScript is pinned to 6.x for compatibility with the current `typescript-eslint` release.

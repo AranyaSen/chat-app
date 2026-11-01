@@ -65,20 +65,22 @@ export class AuthService {
 
       await updateEmailTokenHash({ userEmail: user.email, hashedToken });
 
-      await transporter.sendMail({
-        from: "Chat-app <no-reply@yourdomain>",
-        to: user.email,
-        subject: "Verify your Email Address",
-        html: `
-          <h1>Welcome ${user.username}!</h1>
-          <p>Please click the link below to verify your email address:</p>
-          <a href="${verificationLink}">Verify Email</a>`,
-      });
+      console.log("sending email ----", hashedToken);
 
-      throw new AppError(
-        "Email verification required. Please check your inbox.",
-        403,
-      );
+      try {
+        await transporter.sendMail({
+          from: "Chat App <onboarding@resend.dev>",
+          to: user.email,
+          subject: "Verify your Email Address",
+          html: `
+            <h1>Welcome ${user.username}!</h1>
+            <p>Please click the link below to verify your email address:</p>
+            <a href="${verificationLink}">Verify Email</a>`,
+        });
+        console.log("Email sent to", user.email);
+      } catch (error) {
+        console.log(error);
+      }
     }
 
     if (!user.is_active) {
