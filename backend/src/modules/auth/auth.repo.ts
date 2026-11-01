@@ -27,6 +27,13 @@ export const findUserByEmailToken = async (hashedToken: string) => {
     where: {
       email_token_hash: hashedToken,
     },
+    select: {
+      name: true,
+      username: true,
+      email: true,
+      is_active: true,
+      id: true,
+    },
   });
 };
 

@@ -18,7 +18,7 @@ const setAuthCookies = (
     httpOnly: true,
     secure: true,
     sameSite: "lax",
-    maxAge: authConfig.accessMaxAgeMs,
+    maxAge: authConfig.refreshMaxAgeMs,
     path: "/auth/refresh",
   });
 };
