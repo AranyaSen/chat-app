@@ -12,8 +12,9 @@ export const envSchema = z.object({
 
   EMAIL_HOST: z.string(),
   EMAIL_PORT: z.string().transform(Number),
-  EMAIL_PROVIDER: z.string(),
-  EMAIL_API_KEY: z.string(),
+  ETHEREAL_USER: z.string(),
+  ETHEREAL_PASS: z.string(),
+  ETHEREAL_USER_NAME: z.string(),
   EMAIL_VERIFICATION_LINK: z.string(),
 });
 

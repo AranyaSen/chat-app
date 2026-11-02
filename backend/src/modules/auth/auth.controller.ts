@@ -57,18 +57,27 @@ export const register = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
-  const { user, accessToken, refreshToken } = await AuthService.login({
-    username,
-    password,
-  });
+  const { user, accessToken, refreshToken, previewUrl } =
+    await AuthService.login({
+      username,
+      password,
+    });
 
-  const message = user.is_verified ? "Login successful" : "Please verify email";
+  if (!user || !accessToken || !refreshToken) {
+    return res.status(200).json({
+      success: true,
+      message: "Please verify email",
+      data: {
+        testInboxUrl: previewUrl,
+      },
+    });
+  }
 
   setAuthCookies(res, accessToken, refreshToken);
 
   return res.status(200).json({
     success: true,
-    message: message,
+    message: "Login successful",
     data: {
       name: user.name,
       username: user.username,

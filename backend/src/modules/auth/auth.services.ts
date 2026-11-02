@@ -18,6 +18,7 @@ import {
   verifyRefreshToken,
 } from "./auth.utils.js";
 import { Request } from "express";
+import nodemailer from "nodemailer";
 
 export class AuthService {
   static async register(data: RegisterType) {
@@ -65,11 +66,11 @@ export class AuthService {
 
       await updateEmailTokenHash({ userEmail: user.email, hashedToken });
 
-      console.log("sending email ----", hashedToken);
+      console.log("sending email ----");
 
       try {
-        await transporter.sendMail({
-          from: "Chat App <onboarding@resend.dev>",
+        const message = await transporter.sendMail({
+          from: "Chat App <no-reply@test.chatapp.dev>",
           to: user.email,
           subject: "Verify your Email Address",
           html: `
@@ -78,8 +79,17 @@ export class AuthService {
             <a href="${verificationLink}">Verify Email</a>`,
         });
         console.log("Email sent to", user.email);
+        const previewUrl = nodemailer.getTestMessageUrl(message);
+        console.log(previewUrl);
+        return {
+          user: null,
+          accessToken: null,
+          refreshToken: null,
+          previewUrl,
+        };
       } catch (error) {
         console.log(error);
+        throw new AppError("Failed to send verification email", 500);
       }
     }
 
