@@ -13,4 +13,15 @@ export class UserServices {
       is_logged_in: true,
     };
   }
+
+  static async getUserChatsList(userId: string) {
+    const initiatedConversations =
+      await UserRepo.getUserInitiatedConversations(userId);
+
+    if (!initiatedConversations) {
+      return null;
+    }
+
+    const conversations = initiatedConversations;
+  }
 }

@@ -17,3 +17,12 @@ export const userDetails = async (req: Request, res: Response) => {
     data: user,
   });
 };
+
+export const chatsList = async (req: Request, res: Response) => {
+  const userId = req.user?.userId;
+  if (!userId) {
+    throw new AppError("UNAUTHORIZED", 401);
+  }
+
+  const chatsList = await UserServices.getUserChatsList(userId);
+};

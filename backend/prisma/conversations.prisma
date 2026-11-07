@@ -10,4 +10,5 @@ model Conversations {
     createdAt       DateTime         @default(now())
 
     // relations
+    conversation_members Conversation_Members[]
 }

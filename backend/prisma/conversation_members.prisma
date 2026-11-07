@@ -13,7 +13,8 @@ model Conversation_Members {
     last_message_read String?
 
     // relations
-    user Users @relation(fields: [user_id], references: [id], onDelete: Restrict)
+    user         Users         @relation(fields: [user_id], references: [id], onDelete: Restrict)
+    conversation Conversations @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
 
     @@unique([conversation_id, user_id])
 }

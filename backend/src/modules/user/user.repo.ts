@@ -18,4 +18,16 @@ export class UserRepo {
     });
     return user;
   }
+
+  static async getUserInitiatedConversations(userId: string) {
+    const initiatedConversations = await prisma.users.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        conversations_members: true,
+      },
+    });
+    return initiatedConversations;
+  }
 }
