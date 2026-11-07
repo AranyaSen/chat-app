@@ -8,7 +8,8 @@ model Messages {
     deleted_at      DateTime?
 
     // relations
-    user Users @relation(fields: [sender_id], references: [id], onDelete: Restrict)
+    user          Users          @relation(fields: [sender_id], references: [id], onDelete: Restrict)
+    conversations Conversations? @relation(fields: [conversation_id], references: [id], onDelete: Restrict)
 
     @@index([conversation_id, sent_at])
 }

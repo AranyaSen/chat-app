@@ -4,11 +4,12 @@ enum ConversationType {
 }
 
 model Conversations {
-    id              String           @id @default(uuid())
-    type            ConversationType @default(DIRECT)
-    last_message_id String           @default("")
-    createdAt       DateTime         @default(now())
+    id        String           @id @default(uuid())
+    type      ConversationType @default(DIRECT)
+    // last_message_id String?
+    createdAt DateTime         @default(now())
 
     // relations
     conversation_members Conversation_Members[]
+    messages             Messages[]
 }

@@ -15,13 +15,22 @@ export class UserServices {
   }
 
   static async getUserChatsList(userId: string) {
-    const initiatedConversations =
-      await UserRepo.getUserInitiatedConversations(userId);
+    const conversations = await UserRepo.getUserConversationsList(userId);
 
-    if (!initiatedConversations) {
+    if (!conversations) {
       return null;
     }
+    return conversations;
+  }
 
-    const conversations = initiatedConversations;
+  static async getConversationMembers(
+    currentUserId: string,
+    conversationId: string,
+  ) {
+    const conversationMembers = await UserRepo.getConversationMembers(
+      currentUserId,
+      conversationId,
+    );
+    return conversationMembers;
   }
 }
