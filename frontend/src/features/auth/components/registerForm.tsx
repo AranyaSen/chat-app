@@ -20,10 +20,8 @@ import {
 
 export function RegisterForm() {
   const navigate = useNavigate();
-  const {
-    mutateAsync: registerAccount,
-    isPending: isRegistering,
-  } = useRegisterMutation();
+  const { mutateAsync: registerAccount, isPending: isRegistering } =
+    useRegisterMutation();
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
@@ -103,7 +101,7 @@ export function RegisterForm() {
           <Input
             id="name"
             autoComplete="name"
-            placeholder="Maya Chen"
+            placeholder="Name"
             aria-invalid={Boolean(errors.name)}
             aria-describedby={errors.name ? "name-message" : undefined}
             {...register("name")}
@@ -119,7 +117,7 @@ export function RegisterForm() {
           <Input
             id="username"
             autoComplete="username"
-            placeholder="maya.chen"
+            placeholder="user@123"
             aria-invalid={Boolean(errors.username)}
             aria-describedby="username-message"
             {...register("username")}

@@ -11,7 +11,7 @@ export const authenticate = async (
   const token = req.cookies["chat-access-token"];
 
   if (!token) {
-    throw new AppError("Unauthorised access", 401);
+    throw new AppError("UNAUTHORIZED", 401);
   }
 
   const payload = await verifyAccessToken(token);

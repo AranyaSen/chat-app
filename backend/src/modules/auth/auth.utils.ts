@@ -1,5 +1,6 @@
 import { authConfig } from "@/config/authConfig.js";
 import { JWTPayload, jwtVerify, SignJWT } from "jose";
+import { randomBytes } from "node:crypto";
 
 const encodedAccessSecret = new TextEncoder().encode(authConfig.accessSecret);
 const encodedRefreshSecret = new TextEncoder().encode(authConfig.refreshSecret);
@@ -48,4 +49,9 @@ export const verifyRefreshToken = async (
     },
   );
   return payload;
+};
+
+export const generateUserId = () => {
+  const userId = `USR-${randomBytes(16).toString("base64url")}`;
+  return userId;
 };

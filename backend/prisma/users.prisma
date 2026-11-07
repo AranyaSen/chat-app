@@ -5,6 +5,7 @@ enum UserRole {
 
 model Users {
     id               String   @id @default(uuid())
+    user_id          String   @unique
     username         String   @unique
     email            String   @unique
     password_hash    String

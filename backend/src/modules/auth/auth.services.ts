@@ -17,7 +17,6 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from "./auth.utils.js";
-import { Request } from "express";
 import nodemailer from "nodemailer";
 
 export class AuthService {

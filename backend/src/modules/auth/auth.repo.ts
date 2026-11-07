@@ -1,4 +1,5 @@
 import { prisma } from "@/db/client.js";
+import { generateUserId } from "./auth.utils.js";
 
 export const findUserByUsernameOrEmail = async ({
   username,
@@ -96,20 +97,20 @@ export const createUser = async ({
   email: string;
   hashedPassword: string;
 }) => {
+  const userId = generateUserId();
   const newUser = await prisma.users.create({
     data: {
       name,
       username,
+      user_id: userId,
       email,
       password_hash: hashedPassword,
-      role: "USER",
-      is_verified: false,
     },
     select: {
       name: true,
       username: true,
       email: true,
-      id: true,
+      user_id: true,
       is_verified: true,
     },
   });
