@@ -1,22 +1,17 @@
 import { authenticate } from "@/middleware/auth.middleware.js";
 import { Router } from "express";
-import {
-  chatsList,
-  getConversationMembers,
-  userDetails,
-} from "./user.controller.js";
+import { searchUsers, userDetails } from "./user.controller.js";
+import { searchUsersRequestSchema } from "./user.validation.js";
 import { validate } from "@/middleware/validate.middleware.js";
-import { getConversationRequestSchema } from "./user.validation.js";
 
 const router = Router();
 
 router.get("/details", authenticate, userDetails);
-router.get("/chats", authenticate, chatsList);
 router.get(
-  "/get-conversation/:conversationId",
+  "/search",
   authenticate,
-  validate(getConversationRequestSchema),
-  getConversationMembers,
+  validate(searchUsersRequestSchema),
+  searchUsers,
 );
 
 export const userRoutes = router;

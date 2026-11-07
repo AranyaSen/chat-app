@@ -19,41 +19,16 @@ export class UserRepo {
     return user;
   }
 
-  static async getUserConversationsList(userId: string) {
-    const conversations = await prisma.conversation_Members.findMany({
+  static async searchUsers(username: string) {
+    return prisma.users.findMany({
       where: {
-        user_id: userId,
-      },
-      select: {
-        conversation: true,
-      },
-    });
-    return conversations;
-  }
-
-  static async getConversationMembers(
-    currentUserId: string,
-    conversationId: string,
-  ) {
-    return await prisma.conversations.findUnique({
-      where: {
-        id: conversationId,
-        conversation_members: {
-          some: {
-            id: currentUserId,
-          },
-        },
+        username: username,
+        is_active: true,
+        is_verified: true,
       },
       select: {
         id: true,
-        type: true,
-        conversation_members: {
-          select: {
-            user_id: true,
-            user: true,
-            role: true,
-          },
-        },
+        user_id: true,
       },
     });
   }

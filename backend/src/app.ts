@@ -6,6 +6,7 @@ import { authRoutes, userRoutes } from "./routes/index.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
+import { conversationRoutes } from "./modules/conversation/conversation.routes.js";
 
 const globalRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -33,8 +34,10 @@ export const createApp = () => {
   // Health routes
   app.use(healthRouter);
 
-  app.use("/auth", authRoutes);
-  app.use("/user", userRoutes);
+  // Api routes
+  app.use("/api/auth", authRoutes);
+  app.use("/api/user", userRoutes);
+  app.use("/api/conversations", conversationRoutes);
 
   // Global Error handler
   app.use(errorHandler);

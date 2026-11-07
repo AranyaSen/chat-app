@@ -14,23 +14,8 @@ export class UserServices {
     };
   }
 
-  static async getUserChatsList(userId: string) {
-    const conversations = await UserRepo.getUserConversationsList(userId);
-
-    if (!conversations) {
-      return null;
-    }
-    return conversations;
-  }
-
-  static async getConversationMembers(
-    currentUserId: string,
-    conversationId: string,
-  ) {
-    const conversationMembers = await UserRepo.getConversationMembers(
-      currentUserId,
-      conversationId,
-    );
-    return conversationMembers;
+  static async searchUsers(username: string) {
+    const users = await UserRepo.searchUsers(username);
+    return users;
   }
 }

@@ -1,9 +1,11 @@
 import z from "zod";
 
-export const getConversationSchema = z.object({
-  conversationId: z.string().min(1, "Conversation ID is required"),
+export const searchUsersSchema = z.object({
+  username: z.string().trim().min(1, "Username is required"),
 });
 
-export const getConversationRequestSchema = z.object({
-  params: getConversationSchema,
+export const searchUsersRequestSchema = z.object({
+  query: searchUsersSchema,
 });
+
+export type SearchUserType = z.infer<typeof searchUsersSchema>;
