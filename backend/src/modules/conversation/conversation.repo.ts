@@ -1,4 +1,5 @@
 import { prisma } from "@/db/client.js";
+import { decryptMessage } from "@/utils/encryption.js";
 
 export class ConversationsRepo {
   static async getUserConversationsList(userId: string) {
@@ -56,7 +57,7 @@ export class ConversationsRepo {
     currentUserId: string,
     conversationId: string,
   ) {
-    return prisma.messages.findMany({
+    const messages = await prisma.messages.findMany({
       where: {
         conversation_id: conversationId,
         conversations: {
@@ -84,6 +85,12 @@ export class ConversationsRepo {
         },
       },
     });
+
+    // Decrypt each message's content before returning to the caller
+    return messages.map((msg) => ({
+      ...msg,
+      content: msg.content !== null ? decryptMessage(msg.content) : null,
+    }));
   }
 
   static async createNewDirectConversation(

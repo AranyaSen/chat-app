@@ -1,4 +1,5 @@
 import { prisma } from "@/db/client.js";
+import { encryptMessage } from "@/utils/encryption.js";
 
 export class MessageRepo {
   static async sendMessage(
@@ -6,11 +7,13 @@ export class MessageRepo {
     senderId: string,
     content: string,
   ) {
-    return await prisma.messages.create({
+    const encryptedContent = encryptMessage(content);
+
+    const message = await prisma.messages.create({
       data: {
         conversation_id: conversationId,
         sender_id: senderId,
-        content: content,
+        content: encryptedContent,
       },
       include: {
         user: {
@@ -21,5 +24,8 @@ export class MessageRepo {
         },
       },
     });
+
+    // Return the message with decrypted content so the socket emits plaintext
+    return { ...message, content };
   }
 }
