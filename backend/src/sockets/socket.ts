@@ -3,6 +3,7 @@ import { Server as HttpServer } from "node:http";
 import { Server } from "socket.io";
 import { setIO } from "./io.js";
 import { socketAuth } from "./middleware/socket.auth.js";
+import { registerMessage } from "@/modules/message/message.socket.js";
 
 export const initialiseSockets = (httpServer: HttpServer): Server => {
   const io = new Server(httpServer, {
@@ -17,6 +18,7 @@ export const initialiseSockets = (httpServer: HttpServer): Server => {
     socket.join(`user:${socket.data.user.id}`);
 
     //Register sockets
+    registerMessage(io, socket);
 
     socket.on("disconnect", () => {
       console.log("disconnected", socket.id, `user:${socket.data.user.id}`);

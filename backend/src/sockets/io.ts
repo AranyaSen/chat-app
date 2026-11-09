@@ -1,4 +1,3 @@
-import { AppError } from "@/utils/appError.js";
 import { Server } from "socket.io";
 
 let io: Server | undefined;

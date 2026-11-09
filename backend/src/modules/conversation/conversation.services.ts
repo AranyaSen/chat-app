@@ -6,9 +6,6 @@ export class ConversationsService {
     const conversations =
       await ConversationsRepo.getUserConversationsList(userId);
 
-    if (!conversations) {
-      return null;
-    }
     return conversations;
   }
 
@@ -25,7 +22,21 @@ export class ConversationsService {
 
   static async findDirectConversation(currentUserId: string, userId: string) {
     const key = generateDirectKey(currentUserId, userId);
+
     const conversationId = await ConversationsRepo.findDirectConversation(key);
+
     return conversationId;
+  }
+
+  static async getConversationHitory(
+    currentUserId: string,
+    conversationId: string,
+  ) {
+    const conversationHistory = await ConversationsRepo.getConversationHistory(
+      currentUserId,
+      conversationId,
+    );
+
+    return conversationHistory;
   }
 }

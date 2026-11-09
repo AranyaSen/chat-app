@@ -5,8 +5,10 @@ import {
   chatsList,
   getConversationMembers,
   findDirectConversation,
+  getConversationHistory,
 } from "./conversation.controller.js";
 import {
+  getConversationHistoryRequestSchema,
   getConversationRequestSchema,
   resolveDirectConversationSchema,
 } from "./conversation.validations.js";
@@ -25,6 +27,12 @@ router.get(
   authenticate,
   validate(resolveDirectConversationSchema),
   findDirectConversation,
+);
+router.get(
+  "/history/:conversationId",
+  authenticate,
+  validate(getConversationHistoryRequestSchema),
+  getConversationHistory,
 );
 
 export const conversationRoutes = router;

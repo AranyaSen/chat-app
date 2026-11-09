@@ -67,3 +67,23 @@ export const findDirectConversation = async (req: Request, res: Response) => {
     data: conversationId,
   });
 };
+
+export const getConversationHistory = async (req: Request, res: Response) => {
+  const conversationId = req.params.conversationId as string;
+  const currentUserId = req.user?.userId;
+
+  if (!currentUserId) {
+    throw new AppError("UNAUTHORIZED", 401);
+  }
+
+  const converationHistory = await ConversationsService.getConversationHitory(
+    currentUserId,
+    conversationId,
+  );
+
+  return res.status(200).json({
+    success: true,
+    message: "Conversation history fetched successfully",
+    data: converationHistory,
+  });
+};

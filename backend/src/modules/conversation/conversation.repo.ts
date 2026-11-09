@@ -51,4 +51,71 @@ export class ConversationsRepo {
       },
     });
   }
+
+  static async getConversationHistory(
+    currentUserId: string,
+    conversationId: string,
+  ) {
+    return prisma.messages.findMany({
+      where: {
+        conversation_id: conversationId,
+        conversations: {
+          conversation_members: {
+            some: {
+              user_id: currentUserId,
+            },
+          },
+        },
+      },
+      orderBy: {
+        sent_at: "desc",
+      },
+      select: {
+        id: true,
+        sender_id: true,
+        sent_at: true,
+        content: true,
+        edited_at: true,
+        deleted_at: true,
+        user: {
+          select: {
+            username: true,
+          },
+        },
+      },
+    });
+  }
+
+  static async createNewDirectConversation(
+    senderId: string,
+    receipentId: string,
+    key: string,
+  ) {
+    const newConversation = await prisma.conversations.create({
+      data: {
+        direct_key: key,
+        conversation_members: {
+          create: [{ user_id: senderId }, { user_id: receipentId }],
+        },
+      },
+      include: {
+        conversation_members: true,
+      },
+    });
+    return newConversation;
+  }
+
+  static async verifyConversationMember(
+    senderId: string,
+    conversationId: string,
+  ) {
+    return await prisma.conversation_Members.findUnique({
+      where: {
+        conversation_id_user_id: {
+          conversation_id: conversationId,
+          user_id: senderId,
+        },
+      },
+    });
+  }
 }
