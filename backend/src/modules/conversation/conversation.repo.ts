@@ -22,7 +22,7 @@ export class ConversationsRepo {
         id: conversationId,
         conversation_members: {
           some: {
-            id: currentUserId,
+            user_id: currentUserId,
           },
         },
       },
@@ -91,9 +91,12 @@ export class ConversationsRepo {
     receipentId: string,
     key: string,
   ) {
-    const newConversation = await prisma.conversations.create({
-      data: {
+    const newConversation = await prisma.conversations.upsert({
+      where: {
         direct_key: key,
+      },
+      update: {},
+      create: {
         conversation_members: {
           create: [{ user_id: senderId }, { user_id: receipentId }],
         },

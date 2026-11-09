@@ -12,6 +12,14 @@ export class MessageRepo {
         sender_id: senderId,
         content: content,
       },
+      include: {
+        user: {
+          select: {
+            username: true,
+            image: true,
+          },
+        },
+      },
     });
   }
 }
