@@ -10,7 +10,7 @@ export const registerMessage = (io: Server, socket: Socket): void => {
       ack: ((response: SendMessageAck) => void) | undefined,
     ) => {
       try {
-        const senderId = socket.data.user.id;
+        const senderId = socket.data.user.userId;
         const recipientId = payload.recipientId;
         const conversationId = payload.conversationId;
         const content = payload.content;

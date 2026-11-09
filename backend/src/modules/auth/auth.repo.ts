@@ -81,7 +81,7 @@ export const requestChangeEmail = async ({
     data: {
       email: email,
       email_token_hash: hashedToken,
-      // is_verified: false,
+      is_verified: false,
     },
   });
 };

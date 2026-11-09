@@ -15,13 +15,13 @@ export const initialiseSockets = (httpServer: HttpServer): Server => {
   io.use(socketAuth);
 
   io.on("connect", (socket) => {
-    socket.join(`user:${socket.data.user.id}`);
+    socket.join(`user:${socket.data.user.userId}`);
 
     //Register sockets
     registerMessage(io, socket);
 
     socket.on("disconnect", () => {
-      console.log("disconnected", socket.id, `user:${socket.data.user.id}`);
+      console.log("disconnected", socket.id, `user:${socket.data.user.userId}`);
     });
   });
 

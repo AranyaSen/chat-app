@@ -1,6 +1,7 @@
 import { createApp } from "./app.js";
 import { env } from "./config/env.js";
 import { connectDb } from "./db/health.js";
+import { initialiseSockets } from "./sockets/socket.js";
 import http from "node:http";
 
 const PORT = env.PORT;
@@ -13,6 +14,8 @@ const startServer = async () => {
     console.log("DB Connected");
 
     const httpServer = http.createServer(app);
+
+    initialiseSockets(httpServer);
 
     httpServer.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
