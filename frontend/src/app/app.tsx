@@ -1,6 +1,5 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-
 import { AppLoader } from "@/components/feedback/appLoader";
 import { GuestRoute } from "@/components/routing/guestRoute";
 import { IndexRedirect } from "@/components/routing/indexRedirect";

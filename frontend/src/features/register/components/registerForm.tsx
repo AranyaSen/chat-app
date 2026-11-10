@@ -1,36 +1,33 @@
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { ArrowRight } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-
-import { InlineAlert } from "@/components/feedback/inlineAlert";
 import { Field } from "@/components/forms/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { PasswordInput } from "@/features/auth/components/passwordInput";
-import { useRegisterMutation } from "@/features/auth/hooks/useAuthMutations";
-import { getApiError } from "@/features/auth/utils/authErrors";
+import { PasswordInput } from "@/components/forms/PasswordInput";
+import { registerApi } from "@/features/register/api/register.api";
 import {
   registerSchema,
   type RegisterValues,
-} from "@/features/auth/validation/authSchema";
+} from "@/features/register/validation/registerSchema";
 
 export function RegisterForm() {
   const navigate = useNavigate();
-  const { mutateAsync: registerAccount, isPending: isRegistering } =
-    useRegisterMutation();
-  const [serverError, setServerError] = useState<string | null>(null);
+  const { mutate: registerAccount, isPending: isRegistering } = useMutation({
+    mutationFn: registerApi.register,
+  });
 
   const {
     register,
     handleSubmit,
-    setError,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
+    mode: "onChange",
     defaultValues: {
       name: "",
       username: "",
@@ -40,41 +37,35 @@ export function RegisterForm() {
     },
   });
 
-  const onSubmit = handleSubmit(async (values) => {
-    setServerError(null);
-
-    try {
-      await registerAccount({
+  const handleFormSubmit = (values: RegisterValues) => {
+    registerAccount(
+      {
         name: values.name.trim(),
         username: values.username.trim(),
         email: values.email.trim(),
         password: values.password,
-      });
+      },
+      {
+        onSuccess: (response) => {
+          toast.success(response.message);
 
-      toast.success("Account created. Sign in to continue.");
-      const query = new URLSearchParams({
-        registered: "1",
-        username: values.username.trim(),
-        email: values.email.trim(),
-      });
-      navigate(`/login?${query.toString()}`);
-    } catch (error) {
-      const parsed = getApiError(error);
-
-      for (const [field, message] of Object.entries(parsed.fieldErrors)) {
-        if (
-          field === "name" ||
-          field === "username" ||
-          field === "email" ||
-          field === "password"
-        ) {
-          setError(field, { message });
-        }
-      }
-
-      setServerError(parsed.message);
-    }
-  });
+          const query = new URLSearchParams({
+            registered: "1",
+            username: values.username.trim(),
+            email: values.email.trim(),
+          });
+          navigate(`/verify-email?${query.toString()}`);
+        },
+        onError: (error) => {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : "An unknown error occurred.",
+          );
+        },
+      },
+    );
+  };
 
   return (
     <div className="mx-auto w-full max-w-[22rem] animate-rise">
@@ -90,13 +81,11 @@ export function RegisterForm() {
         </p>
       </div>
 
-      {serverError ? (
-        <InlineAlert tone="error" className="mb-4">
-          {serverError}
-        </InlineAlert>
-      ) : null}
-
-      <form className="space-y-4" onSubmit={onSubmit} noValidate>
+      <form
+        className="space-y-4"
+        onSubmit={handleSubmit(handleFormSubmit)}
+        noValidate
+      >
         <Field id="name" label="Full name" error={errors.name?.message}>
           <Input
             id="name"
@@ -173,24 +162,19 @@ export function RegisterForm() {
           type="submit"
           size="lg"
           className="mt-1 w-full"
-          disabled={isRegistering}
+          disabled={!isValid || isRegistering}
         >
+          Create account
           {isRegistering ? (
-            <>
-              <Spinner className="size-4" label="Creating account" />
-              Creating account
-            </>
+            <Spinner className="size-4" label="Creating account" />
           ) : (
-            <>
-              Create account
-              <ArrowRight className="size-4" aria-hidden="true" />
-            </>
+            <ArrowRight className="size-4" aria-hidden="true" />
           )}
         </Button>
       </form>
 
       <p className="mt-7 text-center text-[13px] text-muted-foreground">
-        Already have an account?{" "}
+        Already have an account?
         <Link
           to="/login"
           className="font-bold text-secondary-foreground underline-offset-4 transition hover:underline"

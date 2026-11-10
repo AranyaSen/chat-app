@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useMutation } from "@tanstack/react-query";
 import {
   ArrowLeft,
   ArrowRight,
@@ -7,14 +8,11 @@ import {
   MailCheck,
 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
-
-import { InlineAlert } from "@/components/feedback/inlineAlert";
 import { Avatar } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/buttonVariants";
 import { Spinner } from "@/components/ui/spinner";
-import { useVerifyEmailMutation } from "@/features/auth/hooks/useAuthMutations";
+import { authApi } from "@/features/auth/api/auth.api";
 import { useAuthStore } from "@/stores/authStore";
-import { getApiError } from "@/features/auth/utils/authErrors";
 import { cn } from "@/lib/cn";
 
 const steps = [
@@ -33,8 +31,15 @@ export function VerifyEmailView() {
     (state) => state.clearPendingVerification,
   );
 
-  const { data, isPending, isError, error, mutate: verifyEmail } =
-    useVerifyEmailMutation();
+  const {
+    data,
+    isPending,
+    isError,
+    mutate: verifyEmail,
+  } = useMutation({
+    mutationFn: authApi.verifyEmail,
+    retry: false,
+  });
   const startedTokenRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -59,8 +64,6 @@ export function VerifyEmailView() {
   const email = pending?.email;
 
   if (token) {
-    const apiError = getApiError(error);
-
     return (
       <div className="mx-auto w-full max-w-[23rem] animate-rise">
         <div
@@ -94,9 +97,7 @@ export function VerifyEmailView() {
             <h1 className="text-[30px] font-extrabold leading-tight tracking-[-0.05em] text-foreground">
               That link didn't work
             </h1>
-            <InlineAlert tone="error" className="mt-4">
-              {apiError.message}
-            </InlineAlert>
+
             <p className="mt-4 text-[13px] leading-relaxed text-muted-foreground">
               Verification links are single-use. Sign in again from an
               unverified account to request a fresh one.
@@ -119,7 +120,7 @@ export function VerifyEmailView() {
               Verified
             </span>
             <h1 className="text-[30px] font-extrabold leading-tight tracking-[-0.05em] text-foreground">
-              You're all set,{" "}
+              You're all set,
               <span className="font-serif text-[34px] font-normal italic text-secondary-foreground">
                 {data.data.name.split(" ")[0]}.
               </span>
@@ -153,13 +154,13 @@ export function VerifyEmailView() {
         One last step
       </p>
       <h1 className="mt-2 text-[31px] font-extrabold leading-[1.05] tracking-[-0.05em] text-foreground">
-        Check your{" "}
+        Check your
         <span className="font-serif text-[36px] font-normal italic text-secondary-foreground">
           inbox.
         </span>
       </h1>
       <p className="mt-3 text-[13.5px] leading-relaxed text-muted-foreground">
-        We sent a verification link to{" "}
+        We sent a verification link to
         {email ? (
           <span className="font-semibold text-foreground/80">{email}</span>
         ) : (

@@ -1,5 +1,4 @@
 import axios, { type AxiosRequestConfig } from "axios";
-
 import { API_BASE_URL } from "@/config/env";
 
 export type ApiRequestOptions = AxiosRequestConfig & {

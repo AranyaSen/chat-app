@@ -1,33 +1,12 @@
 import type {
   ApiResponse,
-  AuthUser,
   ChangeEmailPayload,
-  LoginPayload,
   MessageResponse,
-  RegisterPayload,
   VerifiedEmailUser,
 } from "@/features/auth/types";
 import { apiRequest } from "@/lib/api";
 
 export const authApi = {
-  register(payload: RegisterPayload) {
-    return apiRequest<ApiResponse<AuthUser>>({
-      url: "/auth/register",
-      method: "POST",
-      data: payload,
-      retryOnUnauthorized: false,
-    });
-  },
-
-  login(payload: LoginPayload) {
-    return apiRequest<ApiResponse<AuthUser>>({
-      url: "/auth/login",
-      method: "POST",
-      data: payload,
-      retryOnUnauthorized: false,
-    });
-  },
-
   verifyEmail(token: string) {
     return apiRequest<ApiResponse<VerifiedEmailUser>>({
       url: "/auth/verify-email",
