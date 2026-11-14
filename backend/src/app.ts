@@ -2,11 +2,10 @@ import express from "express";
 import cors from "cors";
 import { healthRouter } from "./routes/health.routes.js";
 import { env } from "@/config/env.js";
-import { authRoutes, userRoutes } from "./routes/index.js";
+import { authRoutes, conversationRoutes, userRoutes } from "./routes/index.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
-import { conversationRoutes } from "./modules/conversation/conversation.routes.js";
 
 const globalRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
