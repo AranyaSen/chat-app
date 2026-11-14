@@ -9,5 +9,5 @@ export function GuestRoute({ children }: { children: ReactNode }) {
   if (!user) return children;
   if (!user.is_verified) return <Navigate to="/verify-email" replace />;
 
-  return <Navigate to="/app" replace />;
+  return <Navigate to="/conversations" replace />;
 }

@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import { NuqsAdapter } from "nuqs/adapters/react-router/v7";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AppLoader } from "@/components/feedback/appLoader";
 import { GuestRoute } from "@/components/routing/guestRoute";
@@ -34,37 +35,39 @@ const VerifyEmailPage = lazy(() =>
 export function App() {
   return (
     <BrowserRouter>
-      <Suspense fallback={<AppLoader />}>
-        <Routes>
-          <Route path="/" element={<IndexRedirect />} />
-          <Route
-            path="/login"
-            element={
-              <GuestRoute>
-                <LoginPage />
-              </GuestRoute>
-            }
-          />
-          <Route
-            path="/register"
-            element={
-              <GuestRoute>
-                <RegisterPage />
-              </GuestRoute>
-            }
-          />
-          <Route path="/verify-email" element={<VerifyEmailPage />} />
-          <Route
-            path="/app"
-            element={
-              <ProtectedRoute>
-                <ChatPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </Suspense>
+      <NuqsAdapter>
+        <Suspense fallback={<AppLoader />}>
+          <Routes>
+            <Route path="/" element={<IndexRedirect />} />
+            <Route
+              path="/login"
+              element={
+                <GuestRoute>
+                  <LoginPage />
+                </GuestRoute>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <GuestRoute>
+                  <RegisterPage />
+                </GuestRoute>
+              }
+            />
+            <Route path="/verify-email" element={<VerifyEmailPage />} />
+            <Route
+              path="/conversations"
+              element={
+                <ProtectedRoute>
+                  <ChatPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
+      </NuqsAdapter>
     </BrowserRouter>
   );
 }

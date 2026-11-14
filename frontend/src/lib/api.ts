@@ -1,5 +1,5 @@
 import axios, { type AxiosRequestConfig } from "axios";
-import { API_BASE_URL } from "@/config/env";
+import { PROXY_URL_PATH } from "@/config/env";
 
 export type ApiRequestOptions = AxiosRequestConfig & {
   retryOnUnauthorized?: boolean;
@@ -18,7 +18,7 @@ export class ApiError extends Error {
 }
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: PROXY_URL_PATH,
   withCredentials: true,
   headers: {
     Accept: "application/json",

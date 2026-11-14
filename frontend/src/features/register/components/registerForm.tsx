@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { ArrowRight } from "lucide-react";
+import { createSerializer, parseAsString } from "nuqs";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -14,6 +15,12 @@ import {
   registerSchema,
   type RegisterValues,
 } from "@/features/register/validation/registerSchema";
+
+const serializeVerifyEmailParams = createSerializer({
+  registered: parseAsString,
+  username: parseAsString,
+  email: parseAsString,
+});
 
 export function RegisterForm() {
   const navigate = useNavigate();
@@ -49,12 +56,13 @@ export function RegisterForm() {
         onSuccess: (response) => {
           toast.success(response.message);
 
-          const query = new URLSearchParams({
-            registered: "1",
-            username: values.username.trim(),
-            email: values.email.trim(),
-          });
-          navigate(`/verify-email?${query.toString()}`);
+          navigate(
+            `/verify-email${serializeVerifyEmailParams({
+              registered: "1",
+              username: values.username.trim(),
+              email: values.email.trim(),
+            })}`,
+          );
         },
         onError: (error) => {
           toast.error(

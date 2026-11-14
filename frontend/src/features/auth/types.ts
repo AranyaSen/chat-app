@@ -1,9 +1,12 @@
 export type AuthUser = {
   id: string;
+  user_id?: string;
   name: string;
   username: string;
   email: string;
   is_verified: boolean;
+  is_active?: boolean;
+  image?: string | null;
 };
 
 export type VerifiedEmailUser = {

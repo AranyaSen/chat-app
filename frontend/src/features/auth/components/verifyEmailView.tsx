@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { useQueryState } from "nuqs";
 import {
   ArrowLeft,
   ArrowRight,
@@ -7,7 +8,7 @@ import {
   CircleAlert,
   MailCheck,
 } from "lucide-react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Avatar } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/buttonVariants";
 import { Spinner } from "@/components/ui/spinner";
@@ -22,8 +23,8 @@ const steps = [
 ];
 
 export function VerifyEmailView() {
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get("token");
+  const [token] = useQueryState("token");
+  const [queryUsername] = useQueryState("username");
   const pending = useAuthStore((state) => state.pendingVerification);
   const user = useAuthStore((state) => state.user);
   const updateUser = useAuthStore((state) => state.updateUser);
@@ -59,7 +60,6 @@ export function VerifyEmailView() {
     }
   }, [data, clearPendingVerification, updateUser, user]);
 
-  const queryUsername = searchParams.get("username");
   const username = queryUsername ?? pending?.username;
   const email = pending?.email;
 

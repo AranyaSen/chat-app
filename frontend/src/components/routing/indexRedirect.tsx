@@ -8,5 +8,5 @@ export function IndexRedirect() {
   if (!user) return <Navigate to="/login" replace />;
   if (!user.is_verified) return <Navigate to="/verify-email" replace />;
 
-  return <Navigate to="/app" replace />;
+  return <Navigate to="/conversations" replace />;
 }

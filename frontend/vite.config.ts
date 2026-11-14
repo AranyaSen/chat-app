@@ -19,8 +19,8 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 4000,
       proxy: {
-        // The browser calls `/chat-app/auth/...`; the rewrite removes the
-        // prefix so the backend still receives `/auth/...`.
+        // The browser calls `/chat-app/api/...`; the rewrite removes the
+        // `/chat-app` prefix so the backend receives `/api/...`.
         "/chat-app": {
           target: API_URL,
           changeOrigin: false,

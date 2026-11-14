@@ -1,8 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { ArrowRight } from "lucide-react";
+import { useQueryState } from "nuqs";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Field } from "@/components/forms/field";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { getFirstName } from "@/lib/format";
 
 export function LoginForm() {
-  const [searchParams] = useSearchParams();
+  const [usernameParam] = useQueryState("username");
   const navigate = useNavigate();
   const { mutate: login, isPending: isLoggingIn } = useMutation({
     mutationFn: loginApi.login,
@@ -32,7 +33,7 @@ export function LoginForm() {
   } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: searchParams.get("username") ?? "",
+      username: usernameParam ?? "",
       password: "",
     },
   });
