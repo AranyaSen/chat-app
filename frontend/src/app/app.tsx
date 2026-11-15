@@ -3,12 +3,12 @@ import { NuqsAdapter } from "nuqs/adapters/react-router/v7";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AppLoader } from "@/components/feedback/appLoader";
 import { GuestRoute } from "@/components/routing/guestRoute";
-import { IndexRedirect } from "@/components/routing/indexRedirect";
 import { ProtectedRoute } from "@/components/routing/protectedRoute";
+import { AppBootstrap } from "./AppBootstrap";
 
-const ChatPage = lazy(() =>
-  import("@/pages/chat/chatPage").then((module) => ({
-    default: module.ChatPage,
+const ConversationsPage = lazy(() =>
+  import("@/pages/conversations/conversationsPage").then((module) => ({
+    default: module.ConversationsPage,
   })),
 );
 const LoginPage = lazy(() =>
@@ -36,37 +36,46 @@ export function App() {
   return (
     <BrowserRouter>
       <NuqsAdapter>
-        <Suspense fallback={<AppLoader />}>
-          <Routes>
-            <Route path="/" element={<IndexRedirect />} />
-            <Route
-              path="/login"
-              element={
-                <GuestRoute>
-                  <LoginPage />
-                </GuestRoute>
-              }
-            />
-            <Route
-              path="/register"
-              element={
-                <GuestRoute>
-                  <RegisterPage />
-                </GuestRoute>
-              }
-            />
-            <Route path="/verify-email" element={<VerifyEmailPage />} />
-            <Route
-              path="/conversations"
-              element={
-                <ProtectedRoute>
-                  <ChatPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </Suspense>
+        <AppBootstrap>
+          <Suspense fallback={<AppLoader />}>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <GuestRoute>
+                    <LoginPage />
+                  </GuestRoute>
+                }
+              />
+              <Route
+                path="/login"
+                element={
+                  <GuestRoute>
+                    <LoginPage />
+                  </GuestRoute>
+                }
+              />
+              <Route
+                path="/register"
+                element={
+                  <GuestRoute>
+                    <RegisterPage />
+                  </GuestRoute>
+                }
+              />
+              <Route path="/verify-email" element={<VerifyEmailPage />} />
+              <Route
+                path="/conversations"
+                element={
+                  <ProtectedRoute>
+                    <ConversationsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </Suspense>
+        </AppBootstrap>
       </NuqsAdapter>
     </BrowserRouter>
   );

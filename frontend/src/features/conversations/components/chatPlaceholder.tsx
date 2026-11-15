@@ -1,5 +1,4 @@
 import { MessagesSquare } from "lucide-react";
-
 import { cn } from "@/lib/cn";
 
 type ChatPlaceholderProps = {
@@ -31,8 +30,8 @@ export function ChatPlaceholder({ className }: ChatPlaceholderProps) {
           Choose a conversation
         </h3>
         <p className="mt-2 max-w-xs text-[12.5px] leading-relaxed text-muted-foreground">
-          Select a chat from the list, or search for someone by username to start
-          a new conversation.
+          Select a chat from the list, or search for someone by username to
+          start a new conversation.
         </p>
       </div>
     </section>

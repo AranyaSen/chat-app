@@ -1,17 +1,13 @@
-import type {
-  ApiResponse,
-  AuthUser,
-  LoginPayload,
-} from "@/features/auth/types";
-import { apiRequest } from "@/lib/api";
+import type { ApiResponse } from "@/features/auth/types/auth.types";
+import type { LoginPayload, LoginResult } from "../types/login.types";
+import { api } from "@/lib/api";
 
 export const loginApi = {
-  login(payload: LoginPayload) {
-    return apiRequest<ApiResponse<AuthUser>>({
-      url: "/auth/login",
-      method: "POST",
-      data: payload,
-      retryOnUnauthorized: false,
-    });
+  async login(payload: LoginPayload) {
+    const response = await api.post<ApiResponse<LoginResult>>(
+      "/auth/login",
+      payload,
+    );
+    return response.data;
   },
 };

@@ -1,16 +1,12 @@
 import { useState, type FormEvent } from "react";
 import { LogOut, Search, X } from "lucide-react";
-
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { ConversationList } from "@/features/chat/components/conversationList";
-import type {
-  Conversation,
-  ConversationListItem,
-} from "@/features/chat/types";
-import type { AuthUser } from "@/features/auth/types";
+import { ConversationList } from "@/features/conversations/components/conversationList";
+import type { ConversationListItem } from "@/features/conversations/types";
+import type { AuthUser } from "@/features/auth/types/auth.types";
 import { useUserSearch } from "@/features/user/hooks/useUserSearch";
 import type { UserSearchResult } from "@/features/user/types";
 import { cn } from "@/lib/cn";
@@ -21,8 +17,7 @@ type ChatSidebarProps = {
   selectedConversationId: string | null;
   isLoadingConversations: boolean;
   isConversationsError: boolean;
-  isResolvingUser: boolean;
-  onSelectConversation: (conversation: Conversation) => void;
+  onSelectConversation: (conversationId: string) => void;
   onSelectUser: (user: UserSearchResult) => void;
   onSignOut: () => void;
   isSigningOut: boolean;
@@ -35,7 +30,6 @@ export function ChatSidebar({
   selectedConversationId,
   isLoadingConversations,
   isConversationsError,
-  isResolvingUser,
   onSelectConversation,
   onSelectUser,
   onSignOut,
@@ -45,7 +39,8 @@ export function ChatSidebar({
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const { data, isFetching } = useUserSearch(searchTerm);
-  const results = (data?.data ?? []).filter((result) => result.id !== user.id);
+  // The backend already excludes the current user from search results.
+  const results = data?.data ?? [];
 
   const handleSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -113,13 +108,12 @@ export function ChatSidebar({
               <ul className="max-h-56 overflow-y-auto p-1.5 scrollbar-subtle">
                 {results.map((result) => {
                   const name =
-                    result.name ?? result.username ?? `@${result.user_id}`;
+                    result.name ?? result.username ?? `@${result.username}`;
 
                   return (
                     <li key={result.id}>
                       <button
                         type="button"
-                        disabled={isResolvingUser}
                         onClick={() => handleSelectUser(result)}
                         className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition hover:bg-white/75 disabled:opacity-60"
                       >
@@ -151,7 +145,6 @@ export function ChatSidebar({
       <div className="min-h-0 flex-1 overflow-y-auto p-2.5 scrollbar-subtle">
         <ConversationList
           conversations={conversations}
-          currentUserId={user.id}
           selectedConversationId={selectedConversationId}
           isLoading={isLoadingConversations}
           isError={isConversationsError}

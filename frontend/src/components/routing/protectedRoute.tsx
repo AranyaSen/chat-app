@@ -1,18 +1,17 @@
-import type { ReactNode } from "react";
-import { Navigate, useLocation } from "react-router-dom";
-
 import { useAuthStore } from "@/stores/authStore";
+import { Navigate } from "react-router-dom";
 
-export function ProtectedRoute({ children }: { children: ReactNode }) {
+export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const user = useAuthStore((state) => state.user);
-  const location = useLocation();
 
-  if (!user) {
-    const next = `${location.pathname}${location.search}`;
-    return <Navigate to={`/login?next=${encodeURIComponent(next)}`} replace />;
+  const isLoggedIn = user?.is_logged_in;
+  const isVerified = user?.is_verified;
+
+  if (!user || !isLoggedIn) {
+    return <Navigate to="/login" replace />;
   }
 
-  if (!user.is_verified) {
+  if (!isVerified) {
     return <Navigate to="/verify-email" replace />;
   }
 

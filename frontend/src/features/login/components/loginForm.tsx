@@ -20,11 +20,13 @@ import { getFirstName } from "@/lib/format";
 
 export function LoginForm() {
   const [usernameParam] = useQueryState("username");
+
   const navigate = useNavigate();
+  const setSession = useAuthStore((state) => state.setSession);
+
   const { mutate: login, isPending: isLoggingIn } = useMutation({
     mutationFn: loginApi.login,
   });
-  const setSession = useAuthStore((state) => state.setSession);
 
   const {
     register,
@@ -46,15 +48,15 @@ export function LoginForm() {
       },
       {
         onSuccess: (response) => {
-          setSession(response.data);
-          const isUserVerified = response.data.is_verified;
+          const user = response.data;
 
-          if (!isUserVerified) {
+          if (!("is_verified" in user) || !user.is_verified) {
             navigate("/verify-email");
             return;
           }
 
-          toast.success(`Welcome back, ${getFirstName(response.data.name)}`);
+          setSession(user);
+          toast.success(`Welcome back, ${getFirstName(user.name)}`);
           navigate("/conversations", { replace: true });
         },
         onError: (error) => {
@@ -69,12 +71,12 @@ export function LoginForm() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[22rem] animate-rise">
+    <div className="mx-auto w-full max-w-88 animate-rise">
       <div className="mb-7 space-y-2.5">
         <p className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-secondary-foreground/80">
           Welcome back
         </p>
-        <h1 className="text-[32px] font-extrabold leading-none tracking-[-0.05em] text-foreground">
+        <h1 className="text-[32px] font-extrabold leading-none tracking-tighter text-foreground">
           Sign in
         </h1>
         <p className="text-[13.5px] leading-relaxed text-muted-foreground">

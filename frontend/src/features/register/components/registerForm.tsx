@@ -76,12 +76,12 @@ export function RegisterForm() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[22rem] animate-rise">
+    <div className="mx-auto w-full max-w-88 animate-rise">
       <div className="mb-7 space-y-2.5">
         <p className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-secondary-foreground/80">
           Create account
         </p>
-        <h1 className="text-[32px] font-extrabold leading-none tracking-[-0.05em] text-foreground">
+        <h1 className="text-[32px] font-extrabold leading-none tracking-tighter text-foreground">
           Create an account
         </h1>
         <p className="text-[13.5px] leading-relaxed text-muted-foreground">

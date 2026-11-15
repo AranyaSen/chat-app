@@ -2,13 +2,14 @@
 
 A minimal chat frontend built with React, TypeScript, Tailwind CSS, TanStack Query, Zustand, and Axios.
 
-The authentication flow is wired to the Express API. The chat dashboard is a placeholder until the backend exposes messaging endpoints; it intentionally contains no demo conversations or fake users.
+The authentication and chat dashboard flows are wired to the Express API. Conversations, history, user search, and profile details come from the backend; no demo conversations or fake users are used.
 
 ## Stack
 
 - React 19 + Vite 8 + TypeScript
 - Tailwind CSS v4 (`src/styles/globals.css`)
 - TanStack Query for server state
+- nuqs for URL query state
 - Zustand for the persisted auth profile
 - React Hook Form + Zod for validation
 - Axios for API requests
@@ -43,10 +44,10 @@ VITE_API_URL=
 ```
 
 - `API_URL` is used by the Vite dev proxy (`/chat-app` → backend).
-- Leave `VITE_API_URL` empty in development. The Axios client uses the relative `/chat-app` base so cookies stay same-origin.
+- Leave `VITE_API_URL` empty in development. The Axios client uses the relative `/chat-app/api` base so cookies stay same-origin.
 - Set `VITE_API_URL` only when the API is deployed on a different origin without a proxy.
 
-The proxy strips the `/chat-app` prefix, so a request to `/chat-app/auth/login` reaches the backend at `/auth/login`.
+The proxy strips the `/chat-app` prefix, so a request to `/chat-app/api/auth/login` reaches the backend at `/api/auth/login`.
 
 ## Auth flow
 
@@ -68,19 +69,26 @@ Access and refresh tokens stay in backend httpOnly cookies. Only the profile nee
 | `authApi.changeEmail` | `POST /auth/change-email` |
 | `authApi.refresh` | `POST /auth/refresh` |
 | `authApi.logout` | `POST /auth/logout` |
+| `conversationApi.list` | `GET /conversations` |
+| `conversationApi.findDirect` | `GET /conversations/direct/:userId` |
+| `conversationApi.history` | `GET /conversations/history/:conversationId` |
+| `userApi.details` | `GET /user/details` |
+| `userApi.search` | `GET /user/search?username=...` |
 
 Protected requests retry once through `/auth/refresh` after a `401`.
 
 ## Chat dashboard
 
-`/app` currently shows:
+`/conversations` shows:
 
-- The signed-in user
-- An empty conversation list
-- A placeholder explaining that messaging is not connected yet
+- Profile details refreshed from `GET /user/details` on load
+- The conversation list from `GET /conversations`
+- Username search with `GET /user/search`
+- Direct conversation lookup from `GET /conversations/direct/:userId`
+- Message history from `GET /conversations/history/:conversationId`
 - Sign out
 
-Once the backend adds conversation/message routes, add query hooks and replace the placeholder in `src/features/chat/components/chatPlaceholder.tsx`.
+The selected conversation is stored in the `conversation` query parameter via nuqs.
 
 ## Structure
 
@@ -104,7 +112,16 @@ src/
       utils/
       validation/
     chat/
-      components/      Chat shell and placeholder
+      api/             Conversation service
+      components/      Chat sidebar, conversation list, chat window
+      hooks/           Conversation queries and direct lookup
+      types/
+      utils/
+    user/
+      api/             User details and search service
+      hooks/           User details and search queries
+      types/
+      utils/
   lib/                 Axios client, formatting, avatar, class helpers
   pages/
     chat/

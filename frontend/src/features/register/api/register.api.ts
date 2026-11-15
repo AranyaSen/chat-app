@@ -1,17 +1,13 @@
-import type {
-  ApiResponse,
-  AuthUser,
-  RegisterPayload,
-} from "@/features/auth/types";
-import { apiRequest } from "@/lib/api";
+import type { ApiResponse } from "@/features/auth/types/auth.types";
+import type { RegisterPayload, RegisterResult } from "../types/register.types";
+import { api } from "@/lib/api";
 
 export const registerApi = {
-  register(payload: RegisterPayload) {
-    return apiRequest<ApiResponse<AuthUser>>({
-      url: "/auth/register",
-      method: "POST",
-      data: payload,
-      retryOnUnauthorized: false,
-    });
+  async register(payload: RegisterPayload) {
+    const response = await api.post<ApiResponse<RegisterResult>>(
+      "/auth/register",
+      payload,
+    );
+    return response.data;
   },
 };

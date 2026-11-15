@@ -3,39 +3,33 @@ import type {
   ChangeEmailPayload,
   MessageResponse,
   VerifiedEmailUser,
-} from "@/features/auth/types";
-import { apiRequest } from "@/lib/api";
+} from "@/features/auth/types/auth.types";
+import { api } from "@/lib/api";
 
 export const authApi = {
-  verifyEmail(token: string) {
-    return apiRequest<ApiResponse<VerifiedEmailUser>>({
-      url: "/auth/verify-email",
-      method: "GET",
-      params: { token },
-      retryOnUnauthorized: false,
-    });
+  async verifyEmail(token: string) {
+    const response = await api.get<ApiResponse<VerifiedEmailUser>>(
+      "/auth/verify-email",
+      { params: { token } },
+    );
+    return response.data;
   },
 
-  changeEmail(payload: ChangeEmailPayload) {
-    return apiRequest<ApiResponse<null>>({
-      url: "/auth/change-email",
-      method: "POST",
-      data: payload,
-    });
+  async changeEmail(payload: ChangeEmailPayload) {
+    const response = await api.post<ApiResponse<null>>(
+      "/auth/change-email",
+      payload,
+    );
+    return response.data;
   },
 
-  refresh() {
-    return apiRequest<MessageResponse>({
-      url: "/auth/refresh",
-      method: "POST",
-      retryOnUnauthorized: false,
-    });
+  async refresh() {
+    const response = await api.post<MessageResponse>("/auth/refresh");
+    return response.data;
   },
 
-  logout() {
-    return apiRequest<ApiResponse<null>>({
-      url: "/auth/logout",
-      method: "POST",
-    });
+  async logout() {
+    const response = await api.post<ApiResponse<null>>("/auth/logout");
+    return response.data;
   },
 };

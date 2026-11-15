@@ -1,12 +1,12 @@
 export type AuthUser = {
   id: string;
-  user_id?: string;
   name: string;
   username: string;
   email: string;
   is_verified: boolean;
   is_active?: boolean;
   image?: string | null;
+  is_logged_in?: boolean;
 };
 
 export type VerifiedEmailUser = {
@@ -15,18 +15,6 @@ export type VerifiedEmailUser = {
   username: string;
   email: string;
   is_active: boolean;
-};
-
-export type RegisterPayload = {
-  name: string;
-  username: string;
-  email: string;
-  password: string;
-};
-
-export type LoginPayload = {
-  username: string;
-  password: string;
 };
 
 export type ChangeEmailPayload = {
@@ -42,12 +30,6 @@ export type ApiResponse<T> = {
 export type MessageResponse = {
   success: boolean;
   message: string;
-};
-
-export type PendingVerification = {
-  username: string;
-  email?: string;
-  requestedAt: number;
 };
 
 export type ApiFieldError = {

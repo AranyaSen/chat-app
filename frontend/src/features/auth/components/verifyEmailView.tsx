@@ -25,12 +25,9 @@ const steps = [
 export function VerifyEmailView() {
   const [token] = useQueryState("token");
   const [queryUsername] = useQueryState("username");
-  const pending = useAuthStore((state) => state.pendingVerification);
+  const [queryEmail] = useQueryState("email");
   const user = useAuthStore((state) => state.user);
-  const updateUser = useAuthStore((state) => state.updateUser);
-  const clearPendingVerification = useAuthStore(
-    (state) => state.clearPendingVerification,
-  );
+  const setSession = useAuthStore((state) => state.setSession);
 
   const {
     data,
@@ -51,17 +48,13 @@ export function VerifyEmailView() {
   }, [token, verifyEmail]);
 
   useEffect(() => {
-    if (!data) return;
+    if (!data || !user || user.is_verified) return;
 
-    clearPendingVerification();
+    setSession({ ...user, is_verified: true });
+  }, [data, setSession, user]);
 
-    if (user && !user.is_verified) {
-      updateUser({ is_verified: true });
-    }
-  }, [data, clearPendingVerification, updateUser, user]);
-
-  const username = queryUsername ?? pending?.username;
-  const email = pending?.email;
+  const username = queryUsername;
+  const email = queryEmail;
 
   if (token) {
     return (
