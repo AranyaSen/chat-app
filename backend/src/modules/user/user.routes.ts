@@ -8,7 +8,7 @@ const router = Router();
 
 router.get("/details", authenticate, userDetails);
 router.get(
-  "/search",
+  "/search/:username",
   authenticate,
   validate(searchUsersRequestSchema),
   searchUsers,

@@ -10,7 +10,8 @@ export class MessageServices {
     conversationId: string | null,
     content: string,
   ) {
-    const trimmedContent = content.trim();
+    const trimmedContent = content?.trim();
+
     if (!trimmedContent) {
       throw new AppError("Message cannot be empty", 400);
     }

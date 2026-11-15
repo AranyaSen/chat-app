@@ -8,7 +8,38 @@ export class ConversationsRepo {
         user_id: userId,
       },
       select: {
-        conversation: true,
+        conversation: {
+          select: {
+            conversation_members: {
+              where: {
+                user_id: {
+                  not: userId,
+                },
+                left_at: null,
+              },
+              select: {
+                conversation_id: true,
+                user: {
+                  select: {
+                    id: true,
+                    username: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+            messages: {
+              orderBy: { sent_at: "desc" },
+              take: 1,
+              select: {
+                id: true,
+                content: true,
+                sender_id: true,
+                sent_at: true,
+              },
+            },
+          },
+        },
       },
     });
     return conversations;
@@ -73,11 +104,9 @@ export class ConversationsRepo {
       },
       select: {
         id: true,
-        sender_id: true,
         sent_at: true,
         content: true,
         edited_at: true,
-        deleted_at: true,
         user: {
           select: {
             username: true,
@@ -107,6 +136,7 @@ export class ConversationsRepo {
         conversation_members: {
           create: [{ user_id: senderId }, { user_id: receipentId }],
         },
+        direct_key: key,
       },
       include: {
         conversation_members: true,

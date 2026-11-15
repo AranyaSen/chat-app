@@ -102,7 +102,6 @@ export const createUser = async ({
     data: {
       name,
       username,
-      user_id: userId,
       email,
       password_hash: hashedPassword,
     },
@@ -110,7 +109,6 @@ export const createUser = async ({
       name: true,
       username: true,
       email: true,
-      user_id: true,
       is_verified: true,
     },
   });

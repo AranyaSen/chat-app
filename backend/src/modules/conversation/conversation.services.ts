@@ -1,3 +1,4 @@
+import { decryptMessage } from "@/utils/encryption.js";
 import { ConversationsRepo } from "./conversation.repo.js";
 import { generateDirectKey } from "./conversation.utils.js";
 
@@ -6,7 +7,19 @@ export class ConversationsService {
     const conversations =
       await ConversationsRepo.getUserConversationsList(userId);
 
-    return conversations;
+    const conversationList = conversations.map((conversation) => ({
+      conversationId:
+        conversation.conversation.conversation_members?.[0]?.conversation_id ??
+        null,
+      user: conversation.conversation.conversation_members?.[0]?.user ?? null,
+      lastMessage:
+        conversation.conversation.messages?.map((message) => ({
+          ...message,
+          content: decryptMessage(message.content),
+        })) ?? null,
+    }));
+
+    return conversationList;
   }
 
   static async getConversationMembers(
@@ -36,7 +49,12 @@ export class ConversationsService {
       currentUserId,
       conversationId,
     );
-
-    return conversationHistory;
+    const structuredConversationHistory = conversationHistory.map(
+      (conversation) => ({
+        ...conversation,
+        user: conversation.user.username,
+      }),
+    );
+    return structuredConversationHistory;
   }
 }

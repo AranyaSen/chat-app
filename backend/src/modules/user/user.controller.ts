@@ -20,13 +20,26 @@ export const userDetails = async (req: Request, res: Response) => {
 };
 
 export const searchUsers = async (req: Request, res: Response) => {
-  const { username } = req.query as SearchUserType;
+  const { username } = req.params as SearchUserType;
+  const currentUserId = req.user?.userId;
 
-  const user = await UserServices.searchUsers(username);
+  if (!currentUserId) {
+    throw new AppError("UNAUTHORIZED", 401);
+  }
+
+  const user = await UserServices.searchUsers(username, currentUserId);
+
+  const structuredUserResponse = user.map((user) => ({
+    id: user.id,
+    name: user.name,
+    username: user.username,
+    image: user.image,
+    conversationId: user.conversations_members?.[0]?.conversation_id ?? null,
+  }));
 
   return res.status(200).json({
     success: true,
     message: "Users",
-    data: user,
+    data: structuredUserResponse,
   });
 };

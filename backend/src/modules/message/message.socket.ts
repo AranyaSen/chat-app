@@ -11,9 +11,9 @@ export const registerMessage = (io: Server, socket: Socket): void => {
     ) => {
       try {
         const senderId = socket.data.user.userId;
-        const recipientId = payload.recipientId;
-        const conversationId = payload.conversationId;
-        const content = payload.content;
+        const recipientId = payload?.recipientId;
+        const conversationId = payload?.conversationId;
+        const content = payload?.content;
 
         const message = await MessageServices.sendMessage(
           senderId,

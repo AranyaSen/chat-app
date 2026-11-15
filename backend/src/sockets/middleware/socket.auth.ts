@@ -5,7 +5,14 @@ export const socketAuth = async (
   socket: Socket,
   next: (err?: Error) => void,
 ): Promise<void> => {
-  const token = socket.handshake.auth?.token as string | undefined;
+  const authHeader = socket.handshake.headers.authorization;
+  const headerToken = authHeader?.startsWith("Bearer ")
+    ? authHeader.split(" ")[1]
+    : authHeader;
+
+  const token =
+    (socket.handshake.auth?.token as string | undefined) || headerToken;
+
   if (!token) {
     return next(new Error("UNAUTHORIZED"));
   }

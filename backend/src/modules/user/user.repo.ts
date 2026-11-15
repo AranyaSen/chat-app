@@ -7,7 +7,6 @@ export class UserRepo {
         id: userId,
       },
       select: {
-        user_id: true,
         username: true,
         name: true,
         email: true,
@@ -19,16 +18,29 @@ export class UserRepo {
     return user;
   }
 
-  static async searchUsers(username: string) {
+  static async searchUsers(username: string, currentUserId: string) {
     return prisma.users.findMany({
       where: {
-        username: username,
+        id: {
+          not: currentUserId,
+        },
+        username: {
+          contains: username,
+          mode: "insensitive",
+        },
         is_active: true,
         is_verified: true,
       },
       select: {
         id: true,
-        user_id: true,
+        username: true,
+        name: true,
+        image: true,
+        conversations_members: {
+          select: {
+            conversation_id: true,
+          },
+        },
       },
     });
   }

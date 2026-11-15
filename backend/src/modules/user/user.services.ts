@@ -14,8 +14,8 @@ export class UserServices {
     };
   }
 
-  static async searchUsers(username: string) {
-    const users = await UserRepo.searchUsers(username);
+  static async searchUsers(username: string, currentUserId: string) {
+    const users = await UserRepo.searchUsers(username, currentUserId);
     return users;
   }
 }
