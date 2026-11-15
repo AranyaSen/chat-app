@@ -1,3 +1,4 @@
+import "@/lib/api.interceptors";
 import { lazy, Suspense } from "react";
 import { NuqsAdapter } from "nuqs/adapters/react-router/v7";
 import { BrowserRouter, Route, Routes } from "react-router-dom";

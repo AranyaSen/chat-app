@@ -39,7 +39,7 @@ api.interceptors.response.use(
       error.response?.status !== 401 ||
       !originalRequest ||
       originalRequest._retry ||
-      originalRequest.url?.includes("/auth/refresh")
+      !originalRequest.retryOnUnauthorized
     ) {
       return Promise.reject(error);
     }

@@ -7,6 +7,9 @@ export const registerApi = {
     const response = await api.post<ApiResponse<RegisterResult>>(
       "/auth/register",
       payload,
+      {
+        retryOnUnauthorized: false,
+      },
     );
     return response.data;
   },

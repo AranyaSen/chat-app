@@ -7,6 +7,9 @@ export const loginApi = {
     const response = await api.post<ApiResponse<LoginResult>>(
       "/auth/login",
       payload,
+      {
+        retryOnUnauthorized: false,
+      },
     );
     return response.data;
   },

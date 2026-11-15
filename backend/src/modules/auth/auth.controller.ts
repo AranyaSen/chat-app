@@ -1,7 +1,23 @@
-import { Request, Response } from "express";
+import { Request, Response, type CookieOptions } from "express";
 import { AuthService } from "./auth.services.js";
 import { AppError } from "@/utils/appError.js";
 import { authConfig } from "@/config/authConfig.js";
+
+const authCookieOptions: CookieOptions = {
+  httpOnly: true,
+  secure: true,
+  sameSite: "lax",
+};
+
+// const refreshCookiePath =
+//   env.NODE_ENV === "production"
+//     ? "/api/auth/refresh"
+//     : "/chat-app/api/auth/refresh";
+
+// const refreshCookieOptions: CookieOptions = {
+//   ...authCookieOptions,
+//   path: refreshCookiePath,
+// };
 
 const setAuthCookies = (
   res: Response,
@@ -9,32 +25,18 @@ const setAuthCookies = (
   refreshToken: string,
 ) => {
   res.cookie("chat-access-token", accessToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
+    ...authCookieOptions,
     maxAge: authConfig.accessMaxAgeMs,
   });
   res.cookie("chat-refresh-token", refreshToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
+    ...authCookieOptions,
     maxAge: authConfig.refreshMaxAgeMs,
-    path: "/auth/refresh",
   });
 };
 
 const clearAuthCookies = (res: Response) => {
-  res.clearCookie("chat-access-token", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-  });
-  res.clearCookie("chat-refresh-token", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    path: "/auth/refresh",
-  });
+  res.clearCookie("chat-access-token", authCookieOptions);
+  res.clearCookie("chat-refresh-token", authCookieOptions);
 };
 
 export const register = async (req: Request, res: Response) => {
