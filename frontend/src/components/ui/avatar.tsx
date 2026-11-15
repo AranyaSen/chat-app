@@ -11,7 +11,7 @@ const sizeClasses = {
   xl: "size-20 text-xl",
 } as const;
 
-export type AvatarProps = React.ComponentProps<"span"> & {
+type AvatarProps = React.ComponentProps<"span"> & {
   name: string;
   src?: string | null;
   size?: keyof typeof sizeClasses;

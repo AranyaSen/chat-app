@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { LogOut, Search, X } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import type { ConversationListItem } from "@/features/conversations/types";
 import type { AuthUser } from "@/features/auth/types/auth.types";
 import { useUserSearch } from "@/features/user/hooks/useUserSearch";
 import type { UserSearchResult } from "@/features/user/types";
+import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/cn";
 
 type ChatSidebarProps = {
@@ -37,19 +38,14 @@ export function ChatSidebar({
   className,
 }: ChatSidebarProps) {
   const [searchInput, setSearchInput] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
-  const { data, isFetching } = useUserSearch(searchTerm);
-  // The backend already excludes the current user from search results.
+  const searchTerm = useDebounce(searchInput.trim(), 400);
+  const { data, isFetching, isError } = useUserSearch(searchTerm);
   const results = data?.data ?? [];
-
-  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setSearchTerm(searchInput.trim());
-  };
+  const isSearching = searchInput.trim() !== searchTerm || isFetching;
+  const hasQuery = searchInput.trim().length > 0;
 
   const clearSearch = () => {
     setSearchInput("");
-    setSearchTerm("");
   };
 
   const handleSelectUser = (result: UserSearchResult) => {
@@ -67,22 +63,23 @@ export function ChatSidebar({
           Chats
         </h1>
 
-        <form className="relative mt-4" onSubmit={handleSearch} noValidate>
-          <button
-            type="submit"
-            aria-label="Search users"
-            className="absolute left-2 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground/70 transition hover:bg-white/70 hover:text-foreground"
+        <div className="relative mt-4">
+          <span
+            aria-hidden="true"
+            className="absolute left-2 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground/70"
           >
-            <Search className="size-4" aria-hidden="true" />
-          </button>
+            <Search className="size-4" />
+          </span>
           <Input
             value={searchInput}
-            onChange={(event) => {
-              setSearchInput(event.target.value);
-              if (!event.target.value.trim()) setSearchTerm("");
+            onChange={(event) => setSearchInput(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") clearSearch();
             }}
             placeholder="Search by username"
             aria-label="Search users by username"
+            autoComplete="off"
+            spellCheck={false}
             className="h-10 rounded-xl bg-white/55 pl-9 pr-10 text-[12.5px]"
           />
           {searchInput ? (
@@ -95,17 +92,30 @@ export function ChatSidebar({
               <X className="size-3.5" aria-hidden="true" />
             </button>
           ) : null}
-        </form>
+        </div>
+      </div>
 
-        {searchTerm ? (
-          <div className="mt-2.5 overflow-hidden rounded-2xl border border-white/70 bg-white/55 shadow-soft backdrop-blur-md">
-            {isFetching ? (
-              <div className="flex items-center justify-center gap-2 px-3 py-4 text-[11px] text-muted-foreground">
+      <div
+        className="min-h-0 flex-1 overflow-y-auto p-2.5 scrollbar-subtle"
+        aria-busy={hasQuery && isSearching}
+      >
+        {hasQuery ? (
+          <div className="space-y-1">
+            <p className="px-3 pb-1.5 pt-1 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground/60">
+              {isSearching ? "Searching" : "Results"}
+            </p>
+
+            {isSearching ? (
+              <div className="flex items-center justify-center gap-2 rounded-2xl px-3 py-6 text-[11px] text-muted-foreground">
                 <Spinner className="size-3.5" label="Searching users" />
-                Searching
+                Searching users
               </div>
+            ) : isError ? (
+              <p className="rounded-2xl px-4 py-6 text-center text-[11.5px] leading-relaxed text-muted-foreground">
+                Could not search users. Check your connection and try again.
+              </p>
             ) : results.length > 0 ? (
-              <ul className="max-h-56 overflow-y-auto p-1.5 scrollbar-subtle">
+              <ul className="space-y-1">
                 {results.map((result) => {
                   const name =
                     result.name ?? result.username ?? `@${result.username}`;
@@ -115,11 +125,16 @@ export function ChatSidebar({
                       <button
                         type="button"
                         onClick={() => handleSelectUser(result)}
-                        className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition hover:bg-white/75 disabled:opacity-60"
+                        className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition-colors duration-200 hover:bg-white/45"
                       >
-                        <Avatar name={name} src={result.image} size="xs" />
+                        <Avatar
+                          name={name}
+                          src={result.image}
+                          size="sm"
+                          className="ring-white/80"
+                        />
                         <span className="min-w-0">
-                          <span className="block truncate text-[12px] font-bold text-foreground">
+                          <span className="block truncate text-[12.5px] font-bold text-foreground">
                             {name}
                           </span>
                           {result.username ? (
@@ -134,22 +149,29 @@ export function ChatSidebar({
                 })}
               </ul>
             ) : (
-              <p className="px-3 py-4 text-center text-[11px] text-muted-foreground">
-                No users found for “{searchTerm}”.
-              </p>
+              <div className="flex flex-col items-center px-4 py-8 text-center">
+                <span className="flex size-11 items-center justify-center rounded-2xl border border-white/80 bg-white/55 text-secondary-foreground shadow-soft">
+                  <Search className="size-5" aria-hidden="true" />
+                </span>
+                <p className="mt-3 text-[12.5px] font-bold text-foreground">
+                  No users found
+                </p>
+                <p className="mt-1 max-w-[14rem] text-[11px] leading-relaxed text-muted-foreground">
+                  Nothing matched “{searchTerm}”. Check the username and try
+                  again.
+                </p>
+              </div>
             )}
           </div>
-        ) : null}
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-y-auto p-2.5 scrollbar-subtle">
-        <ConversationList
-          conversations={conversations}
-          selectedConversationId={selectedConversationId}
-          isLoading={isLoadingConversations}
-          isError={isConversationsError}
-          onSelect={onSelectConversation}
-        />
+        ) : (
+          <ConversationList
+            conversations={conversations}
+            selectedConversationId={selectedConversationId}
+            isLoading={isLoadingConversations}
+            isError={isConversationsError}
+            onSelect={onSelectConversation}
+          />
+        )}
       </div>
 
       <div className="border-t border-border/55 p-3.5">

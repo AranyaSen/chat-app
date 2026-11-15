@@ -1,5 +1,5 @@
 export function getFirstName(name: string): string {
-  return name.trim().split(/\s+/)[0] ?? name;
+  return name.trim().split(/\s+/)[0];
 }
 
 export function formatMessageTime(value?: string | null): string {

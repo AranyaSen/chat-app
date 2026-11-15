@@ -1,9 +1,11 @@
 import { parseAsString, useQueryState } from "nuqs";
+import { toast } from "sonner";
 import { AmbientBackground } from "@/components/layout/ambientBackground";
 import { ChatPlaceholder } from "@/features/conversations/components/chatPlaceholder";
 import { ChatSidebar } from "@/features/conversations/components/chatSidebar";
 import { ChatWindow } from "@/features/conversations/components/chatWindow";
 import { useConversations } from "@/features/conversations/hooks/useConversations";
+import { useFindDirectConversation } from "@/features/conversations/hooks/useFindDirectConversation";
 import { useLogout } from "@/features/auth/hooks/useLogout";
 import type { UserSearchResult } from "@/features/user/types";
 import { useAuthStore } from "@/stores/authStore";
@@ -22,16 +24,21 @@ export function ConversationsPage() {
     isError: isConversationsError,
   } = useConversations();
 
+  const findDirectConversation = useFindDirectConversation();
   const conversations = conversationsData?.data ?? [];
 
   if (!user) return null;
 
-  const handleSelectConversation = (conversationId: string) => {
-    setSelectedConversationId(conversationId);
-  };
-
   const handleSelectUser = (result: UserSearchResult) => {
-    setSelectedConversationId(result.conversationId);
+    findDirectConversation.mutate(result.id, {
+      onSuccess: (response) => {
+        const conversationId = response.data?.id;
+        if (conversationId) setSelectedConversationId(conversationId);
+      },
+      onError: () => {
+        toast.error("Could not open that conversation.");
+      },
+    });
   };
 
   return (
@@ -45,7 +52,7 @@ export function ConversationsPage() {
           selectedConversationId={selectedConversationId}
           isLoadingConversations={isLoadingConversations}
           isConversationsError={isConversationsError}
-          onSelectConversation={handleSelectConversation}
+          onSelectConversation={setSelectedConversationId}
           onSelectUser={handleSelectUser}
           onSignOut={() => void logout()}
           isSigningOut={isLoggingOut}

@@ -17,28 +17,8 @@ export type VerifiedEmailUser = {
   is_active: boolean;
 };
 
-export type ChangeEmailPayload = {
-  email: string;
-};
-
 export type ApiResponse<T> = {
   success: boolean;
   message: string;
   data: T;
-};
-
-export type MessageResponse = {
-  success: boolean;
-  message: string;
-};
-
-export type ApiFieldError = {
-  field: string;
-  message: string;
-};
-
-export type ApiErrorPayload = {
-  success?: boolean;
-  message?: string;
-  errors?: ApiFieldError[];
 };

@@ -13,7 +13,7 @@ export type ChatMessage = {
   user: string;
 };
 
-export type LastMessagePreview = {
+type LastMessagePreview = {
   id?: string;
   content?: string | null;
   sender_id?: string;

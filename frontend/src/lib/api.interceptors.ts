@@ -1,10 +1,6 @@
 import type { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { api } from "./api";
 
-api.interceptors.request.use((config) => {
-  return config;
-});
-
 let isRefreshing = false;
 
 let failedQueue: {
@@ -34,17 +30,17 @@ api.interceptors.response.use(
         })
       | undefined;
 
-    // Check if the request needs to be retried
+    // Only 401s are retryable, and auth endpoints opt out to avoid loops.
     if (
       error.response?.status !== 401 ||
       !originalRequest ||
       originalRequest._retry ||
-      !originalRequest.retryOnUnauthorized
+      originalRequest.retryOnUnauthorized === false
     ) {
       return Promise.reject(error);
     }
 
-    // If Refresh is happening then wait
+    // While a refresh is in flight, park the other failed requests.
     if (isRefreshing) {
       return new Promise<void>((resolve, reject) => {
         failedQueue.push({ resolve, reject });
@@ -54,9 +50,10 @@ api.interceptors.response.use(
     originalRequest._retry = true;
     isRefreshing = true;
 
-    // Call the refresh token endpoint and process waiting requests
     try {
-      await api.post("/auth/refresh");
+      await api.post("/auth/refresh", undefined, {
+        retryOnUnauthorized: false,
+      });
 
       processQueue();
 
