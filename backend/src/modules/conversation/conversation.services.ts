@@ -12,11 +12,14 @@ export class ConversationsService {
         conversation.conversation.conversation_members?.[0]?.conversation_id ??
         null,
       user: conversation.conversation.conversation_members?.[0]?.user ?? null,
-      lastMessage:
-        conversation.conversation.messages?.map((message) => ({
-          ...message,
-          content: decryptMessage(message.content),
-        })) ?? null,
+      lastMessage: {
+        id: conversation?.conversation.messages?.[0]?.id,
+        content: decryptMessage(
+          conversation?.conversation?.messages?.[0].content,
+        ),
+        sender_id: conversation?.conversation?.messages?.[0].sender_id,
+        sent_at: conversation?.conversation?.messages?.[0].sent_at,
+      },
     }));
 
     return conversationList;
