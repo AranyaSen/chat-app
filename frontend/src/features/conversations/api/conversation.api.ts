@@ -12,12 +12,12 @@ export const conversationApi = {
     return response.data;
   },
 
-  async findDirect(userId: string) {
-    const response = await api.get<ApiResponse<{ id: string } | null>>(
-      `/conversations/direct/${encodeURIComponent(userId)}`,
-    );
-    return response.data;
-  },
+  // async findDirect(userId: string) {
+  //   const response = await api.get<ApiResponse<{ id: string } | null>>(
+  //     `/conversations/direct/${encodeURIComponent(userId)}`,
+  //   );
+  //   return response.data;
+  // },
 
   async history(conversationId: string) {
     const response = await api.get<ApiResponse<ChatMessage[]>>(

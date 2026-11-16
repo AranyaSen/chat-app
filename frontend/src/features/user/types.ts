@@ -13,6 +13,6 @@ export type UserSearchResult = {
   id: string;
   username: string;
   name: string;
-  image: string | null;
+  image?: string | null;
   conversationId: string | null;
 };

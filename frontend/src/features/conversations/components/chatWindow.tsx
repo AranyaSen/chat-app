@@ -6,20 +6,28 @@ import { useConversationHistory } from "@/features/conversations/hooks/useConver
 import type { AuthUser } from "@/features/auth/types/auth.types";
 import { cn } from "@/lib/cn";
 import { formatMessageTime } from "@/lib/format";
+import type { UserSearchResult } from "@/features/user/types";
+import { Avatar } from "@/components/ui/avatar";
 
 type ChatWindowProps = {
   user: AuthUser;
   conversationId: string | null;
   className?: string;
+  selectedChatUser: UserSearchResult;
 };
 
 export function ChatWindow({
   user,
   conversationId,
   className,
+  selectedChatUser,
 }: ChatWindowProps) {
-  const { data, isPending, isError } = useConversationHistory(conversationId);
-  const messages = [...(data?.data ?? [])].reverse();
+  const {
+    data: chatHistory,
+    isPending,
+    isError,
+  } = useConversationHistory(conversationId, selectedChatUser);
+  const messages = [...(chatHistory?.data ?? [])].reverse();
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -33,17 +41,21 @@ export function ChatWindow({
         className,
       )}
     >
-      {/* <header className="flex items-center gap-3 border-b border-border/55 px-5 py-3.5">
-        <Avatar name={title} src={peer?.image} size="md" />
+      <header className="flex items-center gap-3 border-b border-border/55 px-5 py-3.5">
+        <Avatar
+          name={selectedChatUser?.username}
+          src={selectedChatUser?.image}
+          size="md"
+        />
         <div className="min-w-0">
           <h2 className="truncate text-[14.5px] font-bold tracking-[-0.02em] text-foreground">
-            {title}
+            {selectedChatUser?.username}
           </h2>
           <p className="truncate text-[11px] text-muted-foreground">
-            {handle ?? (isDraft ? "New conversation" : "Direct message")}
+            {selectedChatUser?.name}
           </p>
         </div>
-      </header> */}
+      </header>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 scrollbar-subtle sm:px-6">
         {isPending && conversationId ? (

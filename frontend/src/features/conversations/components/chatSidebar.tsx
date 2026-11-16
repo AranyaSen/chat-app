@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { ConversationList } from "@/features/conversations/components/conversationList";
-import type { ConversationListItem } from "@/features/conversations/types";
+import { useConversations } from "@/features/conversations/hooks/useConversations";
+import { useLogout } from "@/features/auth/hooks/useLogout";
 import type { AuthUser } from "@/features/auth/types/auth.types";
 import { useUserSearch } from "@/features/user/hooks/useUserSearch";
 import type { UserSearchResult } from "@/features/user/types";
@@ -14,43 +15,44 @@ import { cn } from "@/lib/cn";
 
 type ChatSidebarProps = {
   user: AuthUser;
-  conversations: ConversationListItem[];
   selectedConversationId: string | null;
-  isLoadingConversations: boolean;
-  isConversationsError: boolean;
+  onSelectChatUser: (user: UserSearchResult) => void;
   onSelectConversation: (conversationId: string) => void;
-  onSelectUser: (user: UserSearchResult) => void;
-  onSignOut: () => void;
-  isSigningOut: boolean;
   className?: string;
 };
 
 export function ChatSidebar({
   user,
-  conversations,
   selectedConversationId,
-  isLoadingConversations,
-  isConversationsError,
+  onSelectChatUser,
   onSelectConversation,
-  onSelectUser,
-  onSignOut,
-  isSigningOut,
   className,
 }: ChatSidebarProps) {
   const [searchInput, setSearchInput] = useState("");
   const searchTerm = useDebounce(searchInput.trim(), 400);
-  const { data, isFetching, isError } = useUserSearch(searchTerm);
-  const results = data?.data ?? [];
-  const isSearching = searchInput.trim() !== searchTerm || isFetching;
+
+  const {
+    data: conversationsData,
+    isPending: isLoadingConversations,
+    isError: isConversationsError,
+  } = useConversations();
+
+  const {
+    data: searchData,
+    isFetching: isSearchingUsers,
+    isError: isSearchError,
+    error: searchError,
+  } = useUserSearch(searchTerm);
+
+  const { logout, isLoggingOut } = useLogout();
+
+  const conversations = conversationsData?.data ?? [];
+  const results = searchData?.data ?? [];
+  const isSearching = searchInput.trim() !== searchTerm || isSearchingUsers;
   const hasQuery = searchInput.trim().length > 0;
 
   const clearSearch = () => {
     setSearchInput("");
-  };
-
-  const handleSelectUser = (result: UserSearchResult) => {
-    onSelectUser(result);
-    clearSearch();
   };
 
   return (
@@ -110,9 +112,9 @@ export function ChatSidebar({
                 <Spinner className="size-3.5" label="Searching users" />
                 Searching users
               </div>
-            ) : isError ? (
+            ) : isSearchError ? (
               <p className="rounded-2xl px-4 py-6 text-center text-[11.5px] leading-relaxed text-muted-foreground">
-                Could not search users. Check your connection and try again.
+                {searchError?.message}
               </p>
             ) : results.length > 0 ? (
               <ul className="space-y-1">
@@ -124,7 +126,7 @@ export function ChatSidebar({
                     <li key={result.id}>
                       <button
                         type="button"
-                        onClick={() => handleSelectUser(result)}
+                        onClick={() => onSelectChatUser(result)}
                         className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition-colors duration-200 hover:bg-white/45"
                       >
                         <Avatar
@@ -156,7 +158,7 @@ export function ChatSidebar({
                 <p className="mt-3 text-[12.5px] font-bold text-foreground">
                   No users found
                 </p>
-                <p className="mt-1 max-w-[14rem] text-[11px] leading-relaxed text-muted-foreground">
+                <p className="mt-1 max-w-56 text-[11px] leading-relaxed text-muted-foreground">
                   Nothing matched “{searchTerm}”. Check the username and try
                   again.
                 </p>
@@ -168,6 +170,7 @@ export function ChatSidebar({
             conversations={conversations}
             selectedConversationId={selectedConversationId}
             isLoading={isLoadingConversations}
+            onSelectChatUser={onSelectChatUser}
             isError={isConversationsError}
             onSelect={onSelectConversation}
           />
@@ -191,10 +194,10 @@ export function ChatSidebar({
             className="text-muted-foreground hover:bg-white/70 hover:text-destructive"
             aria-label="Sign out"
             title="Sign out"
-            disabled={isSigningOut}
-            onClick={onSignOut}
+            disabled={isLoggingOut}
+            onClick={() => void logout()}
           >
-            {isSigningOut ? (
+            {isLoggingOut ? (
               <Spinner className="size-4" label="Signing out" />
             ) : (
               <LogOut className="size-4" aria-hidden="true" />

@@ -1,17 +1,16 @@
 import { MessagesSquare } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import type { ConversationListItem } from "@/features/conversations/types";
-import {
-  getPeerHandle,
-  getPeerName,
-} from "@/features/conversations/utils";
+import { getPeerHandle, getPeerName } from "@/features/conversations/utils";
 import { cn } from "@/lib/cn";
 import { formatMessageTime } from "@/lib/format";
+import type { UserSearchResult } from "@/features/user/types";
 
 type ConversationListProps = {
   conversations: ConversationListItem[];
   selectedConversationId: string | null;
   isLoading: boolean;
+  onSelectChatUser: (user: UserSearchResult) => void;
   isError: boolean;
   onSelect: (conversationId: string) => void;
 };
@@ -20,9 +19,15 @@ export function ConversationList({
   conversations,
   selectedConversationId,
   isLoading,
+  onSelectChatUser,
   isError,
   onSelect,
 }: ConversationListProps) {
+  const handleConversationClick = ({ conversationId, user }) => {
+    onSelect(conversationId);
+    onSelectChatUser({ ...user, conversationId });
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-1.5" aria-label="Loading conversations">
@@ -59,7 +64,7 @@ export function ConversationList({
         <p className="mt-3 text-[12.5px] font-bold text-foreground">
           No conversations yet
         </p>
-        <p className="mt-1 max-w-[13rem] text-[11px] leading-relaxed text-muted-foreground">
+        <p className="mt-1 max-w-52 text-[11px] leading-relaxed text-muted-foreground">
           Search for someone above to start a conversation.
         </p>
       </div>
@@ -68,11 +73,11 @@ export function ConversationList({
 
   return (
     <div className="space-y-1">
-      {conversations.map(({ conversationId, user: peer, lastMessage }) => {
+      {conversations.map(({ conversationId, user, lastMessage }) => {
         if (!conversationId) return null;
 
-        const title = getPeerName(peer);
-        const handle = getPeerHandle(peer);
+        const title = getPeerName(user);
+        const handle = getPeerHandle(user);
         const timestamp = lastMessage?.sent_at;
         const isSelected = conversationId === selectedConversationId;
 
@@ -80,7 +85,7 @@ export function ConversationList({
           <button
             key={conversationId}
             type="button"
-            onClick={() => onSelect(conversationId)}
+            onClick={() => handleConversationClick({ conversationId, user })}
             className={cn(
               "group flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition-all duration-200",
               isSelected
@@ -90,7 +95,7 @@ export function ConversationList({
           >
             <Avatar
               name={title}
-              src={peer?.image}
+              src={user?.image}
               size="sm"
               className="ring-white/80"
             />
