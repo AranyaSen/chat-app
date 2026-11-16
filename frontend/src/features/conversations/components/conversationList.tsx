@@ -12,7 +12,6 @@ type ConversationListProps = {
   isLoading: boolean;
   onSelectChatUser: (user: UserSearchResult) => void;
   isError: boolean;
-  onSelect: (conversationId: string) => void;
 };
 
 export function ConversationList({
@@ -21,10 +20,8 @@ export function ConversationList({
   isLoading,
   onSelectChatUser,
   isError,
-  onSelect,
 }: ConversationListProps) {
   const handleConversationClick = ({ conversationId, user }) => {
-    onSelect(conversationId);
     onSelectChatUser({ ...user, conversationId });
   };
 

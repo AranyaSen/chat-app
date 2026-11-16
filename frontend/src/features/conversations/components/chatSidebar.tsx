@@ -17,7 +17,6 @@ type ChatSidebarProps = {
   user: AuthUser;
   selectedConversationId: string | null;
   onSelectChatUser: (user: UserSearchResult) => void;
-  onSelectConversation: (conversationId: string) => void;
   className?: string;
 };
 
@@ -25,7 +24,6 @@ export function ChatSidebar({
   user,
   selectedConversationId,
   onSelectChatUser,
-  onSelectConversation,
   className,
 }: ChatSidebarProps) {
   const [searchInput, setSearchInput] = useState("");
@@ -172,7 +170,6 @@ export function ChatSidebar({
             isLoading={isLoadingConversations}
             onSelectChatUser={onSelectChatUser}
             isError={isConversationsError}
-            onSelect={onSelectConversation}
           />
         )}
       </div>

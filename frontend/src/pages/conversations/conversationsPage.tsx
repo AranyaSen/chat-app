@@ -17,11 +17,11 @@ export function ConversationsPage() {
   const [chatUser, setChatUser] = useState<UserSearchResult>(null);
 
   const handleSelectChatUser = (user: UserSearchResult) => {
+    setChatUser(user);
     if (user.conversationId) {
       setSelectedConversationId(user.conversationId);
       return;
     }
-    setChatUser(user);
     setSelectedConversationId(null);
   };
 
@@ -35,7 +35,6 @@ export function ConversationsPage() {
         <ChatSidebar
           user={user}
           selectedConversationId={selectedConversationId}
-          onSelectConversation={setSelectedConversationId}
           onSelectChatUser={handleSelectChatUser}
           className="h-[45dvh] w-full shrink-0 border-b border-border/55 md:h-auto md:w-79.5 md:border-b-0 md:border-r"
         />
