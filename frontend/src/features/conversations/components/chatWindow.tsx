@@ -1,38 +1,89 @@
-import { useEffect, useRef } from "react";
-import { Sparkles } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { SendHorizonal, Sparkles } from "lucide-react";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { InlineAlert } from "@/components/feedback/inlineAlert";
 import { Spinner } from "@/components/ui/spinner";
+import { Avatar } from "@/components/ui/avatar";
 import { useConversationHistory } from "@/features/conversations/hooks/useConversationHistory";
+import { useMessages } from "@/features/conversations/hooks/useMessages";
+import { useSendMessage } from "@/features/conversations/hooks/useSendMessage";
 import type { AuthUser } from "@/features/auth/types/auth.types";
+import type { UserSearchResult } from "@/features/user/types";
 import { cn } from "@/lib/cn";
 import { formatMessageTime } from "@/lib/format";
-import type { UserSearchResult } from "@/features/user/types";
-import { Avatar } from "@/components/ui/avatar";
 
 type ChatWindowProps = {
   user: AuthUser;
   conversationId: string | null;
-  className?: string;
   selectedChatUser: UserSearchResult;
+  className?: string;
 };
 
 export function ChatWindow({
   user,
   conversationId,
-  className,
   selectedChatUser,
+  className,
 }: ChatWindowProps) {
   const {
     data: chatHistory,
     isPending,
     isError,
   } = useConversationHistory(conversationId, selectedChatUser);
-  const messages = [...(chatHistory?.data ?? [])].reverse();
-  const bottomRef = useRef<HTMLDivElement>(null);
 
+  const initialMessages = useMemo(
+    () => [...(chatHistory?.data ?? [])].reverse(),
+    [chatHistory?.data],
+  );
+  const { messages } = useMessages(conversationId, initialMessages);
+  const { send, isSending } = useSendMessage();
+  const queryClient = useQueryClient();
+
+  const [input, setInput] = useState("");
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-scroll on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: "end" });
-  }, [conversationId, messages.length]);
+  }, [messages?.length]);
+
+  // Reset input height helper
+  const resetTextarea = () => {
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
+  };
+
+  const handleSend = async () => {
+    const content = input.trim();
+    if (!content || isSending) return;
+
+    setInput("");
+    resetTextarea();
+
+    const ack = await send({
+      recipientId: selectedChatUser?.id ?? null,
+      conversationId,
+      content,
+    });
+
+    if (!ack.ok) toast.error(ack.error ?? "Failed to send message.");
+    else queryClient.invalidateQueries({ queryKey: ["conversations"] });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(e.target.value);
+    // Auto-grow textarea
+    e.target.style.height = "auto";
+    e.target.style.height = `${e.target.scrollHeight}px`;
+  };
 
   return (
     <section
@@ -70,12 +121,10 @@ export function ChatWindow({
           </InlineAlert>
         ) : null}
 
-        {messages.length > 0 ? (
+        {messages?.length > 0 ? (
           <div className="mx-auto flex max-w-3xl flex-col gap-2.5">
-            {messages.map((message) => {
+            {messages?.map((message) => {
               const isMine = message.user === user.username;
-              const content = message.content;
-
               return (
                 <div
                   key={message.id}
@@ -92,8 +141,8 @@ export function ChatWindow({
                         : "glass-surface rounded-bl-md text-foreground",
                     )}
                   >
-                    <p className="whitespace-pre-wrap break-words">
-                      {content || "Message unavailable"}
+                    <p className="whitespace-pre-wrap wrap-break-word">
+                      {message.content || "Message unavailable"}
                     </p>
                     <p
                       className={cn(
@@ -114,14 +163,41 @@ export function ChatWindow({
           </div>
         ) : null}
 
-        {messages.length === 0 ? (
+        {messages?.length === 0 && !isPending ? (
           <div className="mx-auto mt-6 max-w-md">
             <div className="flex items-center justify-center gap-2 rounded-2xl border border-white/70 bg-white/45 px-4 py-3 text-[11px] text-muted-foreground">
               <Sparkles className="size-3.5" aria-hidden="true" />
-              Messaging will be available once the send flow is connected.
+              Say hello to {selectedChatUser?.username}!
             </div>
           </div>
         ) : null}
+      </div>
+
+      {/* Input */}
+      <div className="border-t border-border/55 px-4 py-3 sm:px-5">
+        <div className="mx-auto flex max-w-3xl items-end gap-2">
+          <textarea
+            ref={textareaRef}
+            rows={1}
+            value={input}
+            onChange={handleInput}
+            onKeyDown={handleKeyDown}
+            placeholder="Message…"
+            className="max-h-36 flex-1 resize-none overflow-y-auto rounded-2xl border border-border/60 bg-white/10 px-4 py-2.5 text-[13px] leading-relaxed text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary/50 scrollbar-subtle"
+          />
+          <button
+            onClick={handleSend}
+            disabled={!input.trim() || isSending}
+            aria-label="Send message"
+            className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow transition-opacity hover:opacity-90 disabled:opacity-40"
+          >
+            {isSending ? (
+              <Spinner className="size-4" />
+            ) : (
+              <SendHorizonal className="size-4" />
+            )}
+          </button>
+        </div>
       </div>
     </section>
   );

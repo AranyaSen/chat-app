@@ -1,6 +1,18 @@
 import { verifyAccessToken } from "@/modules/auth/auth.utils.js";
 import { Socket } from "socket.io";
 
+const getCookie = (cookieHeader: string | undefined, name: string) => {
+  if (!cookieHeader) return undefined;
+
+  for (const entry of cookieHeader.split(";")) {
+    const [key, ...value] = entry.trim().split("=");
+
+    if (key === name) return decodeURIComponent(value.join("="));
+  }
+
+  return undefined;
+};
+
 export const socketAuth = async (
   socket: Socket,
   next: (err?: Error) => void,
@@ -11,7 +23,9 @@ export const socketAuth = async (
     : authHeader;
 
   const token =
-    (socket.handshake.auth?.token as string | undefined) || headerToken;
+    (socket.handshake.auth?.token as string | undefined) ||
+    headerToken ||
+    getCookie(socket.handshake.headers.cookie, "chat-access-token");
 
   if (!token) {
     return next(new Error("UNAUTHORIZED"));

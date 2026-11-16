@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AppLoader } from "@/components/feedback/appLoader";
 import { userApi } from "@/features/user/api/user.api";
 import { useAuthStore } from "@/stores/authStore";
+import { socket } from "@/lib/socket";
 
 export const AppBootstrap = ({ children }: { children: ReactNode }) => {
   const { data: userDetails, isPending } = useQuery({
@@ -26,6 +27,9 @@ export const AppBootstrap = ({ children }: { children: ReactNode }) => {
       is_verified: details.is_verified,
       image: details.image,
     });
+
+    socket.connect();
+    return () => { socket.disconnect(); };
   }, [details, setSession]);
 
   if (isPending) {

@@ -6,4 +6,6 @@ const envSchema = z.object({
 
 export const env = envSchema.parse(import.meta.env);
 
-export const PROXY_URL_PATH = "/chat-app/api";
+export const PROXY_BASE_PATH = "/chat-app";
+export const PROXY_URL_PATH = `${PROXY_BASE_PATH}/api`;
+export const SOCKET_URL_PATH = `${PROXY_BASE_PATH}/socket.io`;
