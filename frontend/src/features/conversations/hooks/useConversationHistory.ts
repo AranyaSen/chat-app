@@ -4,7 +4,7 @@ import type { UserSearchResult } from "@/features/user/types";
 
 export function useConversationHistory(
   conversationId: string | null,
-  selectedChatUser: UserSearchResult,
+  selectedChatUser: UserSearchResult | null,
 ) {
   return useQuery({
     queryKey: ["conversations", conversationId, selectedChatUser, "history"],

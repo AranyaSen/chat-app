@@ -12,11 +12,12 @@ import type { AuthUser } from "@/features/auth/types/auth.types";
 import type { UserSearchResult } from "@/features/user/types";
 import { cn } from "@/lib/cn";
 import { formatMessageTime } from "@/lib/format";
+import { useConversations } from "../hooks/useConversations";
 
 type ChatWindowProps = {
   user: AuthUser;
   conversationId: string | null;
-  selectedChatUser: UserSearchResult;
+  selectedChatUser: UserSearchResult | null;
   className?: string;
 };
 
@@ -32,12 +33,15 @@ export function ChatWindow({
     isError,
   } = useConversationHistory(conversationId, selectedChatUser);
 
+  const conversationListQuery = useConversations();
+
   const initialMessages = useMemo(
     () => [...(chatHistory?.data ?? [])].reverse(),
     [chatHistory?.data],
   );
   const { messages } = useMessages(conversationId, initialMessages);
   const { send, isSending } = useSendMessage();
+  const conversationExists = useConversationsStore((s) => s.conversationExists);
   const updateLastMessage = useConversationsStore((s) => s.updateLastMessage);
 
   const [input, setInput] = useState("");
@@ -69,10 +73,15 @@ export function ChatWindow({
 
     if (!ack.ok) toast.error(ack.error ?? "Failed to send message.");
     else if (ack.message && conversationId) {
-      updateLastMessage(conversationId, {
-        content: ack.message.content ?? undefined,
-        sent_at: ack.message.sent_at,
-      });
+      const conversation = conversationExists(conversationId);
+      if (conversation) {
+        updateLastMessage(conversationId, {
+          content: ack.message.content ?? undefined,
+          sent_at: ack.message.sent_at,
+        });
+      } else {
+        conversationListQuery.refetch();
+      }
     }
   };
 
@@ -99,7 +108,7 @@ export function ChatWindow({
     >
       <header className="flex items-center gap-3 border-b border-border/55 px-5 py-3.5">
         <Avatar
-          name={selectedChatUser?.username}
+          name={selectedChatUser?.username ?? ""}
           src={selectedChatUser?.image}
           size="md"
         />

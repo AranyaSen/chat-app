@@ -1,6 +1,9 @@
 import { MessagesSquare } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
-import type { ConversationListItem } from "@/features/conversations/types";
+import type {
+  ChatUser,
+  ConversationListItem,
+} from "@/features/conversations/types";
 import { getPeerHandle, getPeerName } from "@/features/conversations/utils";
 import { cn } from "@/lib/cn";
 import { formatMessageTime } from "@/lib/format";
@@ -21,7 +24,14 @@ export function ConversationList({
   onSelectChatUser,
   isError,
 }: ConversationListProps) {
-  const handleConversationClick = ({ conversationId, user }) => {
+  const handleConversationClick = ({
+    conversationId,
+    user,
+  }: {
+    conversationId: string;
+    user: ChatUser | null;
+  }) => {
+    if (!user) return;
     onSelectChatUser({ ...user, conversationId });
   };
 

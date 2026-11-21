@@ -4,16 +4,23 @@ import type { ConversationListItem } from "@/features/conversations/types";
 type ConversationsStore = {
   conversations: ConversationListItem[];
   setConversations: (conversations: ConversationListItem[]) => void;
+  conversationExists: (conversationId: string) => boolean;
   updateLastMessage: (
     conversationId: string,
     lastMessage: ConversationListItem["lastMessage"],
   ) => void;
 };
 
-export const useConversationsStore = create<ConversationsStore>((set) => ({
+export const useConversationsStore = create<ConversationsStore>((set, get) => ({
   conversations: [],
 
   setConversations: (conversations) => set({ conversations }),
+
+  conversationExists: (conversationId) => {
+    return get().conversations.some(
+      (c: ConversationListItem) => c.conversationId === conversationId,
+    );
+  },
 
   updateLastMessage: (conversationId, lastMessage) =>
     set((state) => {

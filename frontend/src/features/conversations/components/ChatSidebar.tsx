@@ -30,13 +30,12 @@ export function ChatSidebar({
   const [searchInput, setSearchInput] = useState("");
   const searchTerm = useDebounce(searchInput.trim(), 400);
 
-  const {
-    isPending: isLoadingConversations,
-    isError: isConversationsError,
-  } = useConversations();
+  const { isPending: isLoadingConversations, isError: isConversationsError } =
+    useConversations();
 
   const rawConversations = useConversationsStore((s) => s.conversations);
-  const showLoadingState = isLoadingConversations && rawConversations.length === 0;
+  const showLoadingState =
+    isLoadingConversations && rawConversations.length === 0;
 
   const conversations = useMemo(
     () =>

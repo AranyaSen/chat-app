@@ -29,7 +29,11 @@ export function useSendMessage() {
         .timeout(SEND_TIMEOUT_MS)
         .emitWithAck("message:send", payload);
     } catch (error) {
-      return { ok: false, error: error?.message };
+      return {
+        ok: false,
+        error:
+          error instanceof Error ? error?.message : "Unknown error occured",
+      };
     } finally {
       setIsSending(false);
     }

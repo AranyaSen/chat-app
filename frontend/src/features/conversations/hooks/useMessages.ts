@@ -7,7 +7,9 @@ export function useMessages(
   conversationId: string | null,
   initialMessages: ChatMessage[],
 ) {
-  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const [messages, setMessages] = useState<ChatMessage[]>(
+    initialMessages ?? [],
+  );
   const updateLastMessage = useConversationsStore((s) => s.updateLastMessage);
 
   // Sync when history loads or conversation changes
@@ -17,7 +19,7 @@ export function useMessages(
 
   // Listen for incoming messages on the active conversation
   useEffect(() => {
-    if (!conversationId) return;
+    // if (!conversationId) return;
 
     const handleNew = (message: ChatMessage) => {
       setMessages((prev) => [...prev, message]);

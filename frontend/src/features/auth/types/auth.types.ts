@@ -22,3 +22,12 @@ export type ApiResponse<T> = {
   message: string;
   data: T;
 };
+
+export type MessageResponse = {
+  success: boolean;
+  message: string;
+};
+
+export type ChangeEmailPayload = {
+  email: string;
+};
