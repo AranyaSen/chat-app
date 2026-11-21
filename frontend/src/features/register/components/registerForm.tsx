@@ -15,6 +15,7 @@ import {
   registerSchema,
   type RegisterValues,
 } from "@/features/register/validation/registerSchema";
+import { getErrorMessage } from "@/lib/utils/getErrorMessage";
 
 const serializeVerifyEmailParams = createSerializer({
   registered: parseAsString,
@@ -65,11 +66,8 @@ export function RegisterForm() {
           );
         },
         onError: (error) => {
-          toast.error(
-            error instanceof Error
-              ? error.message
-              : "An unknown error occurred.",
-          );
+          const errorMessage = getErrorMessage(error);
+          toast.error(errorMessage);
         },
       },
     );
