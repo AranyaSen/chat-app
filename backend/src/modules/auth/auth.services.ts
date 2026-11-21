@@ -18,6 +18,7 @@ import {
   verifyRefreshToken,
 } from "./auth.utils.js";
 import nodemailer from "nodemailer";
+import { logger } from "@/config/logger.js";
 
 export class AuthService {
   static async register(data: RegisterType) {
@@ -65,7 +66,7 @@ export class AuthService {
 
       await updateEmailTokenHash({ userEmail: user.email, hashedToken });
 
-      console.log("sending email ----");
+      logger.info({ userId: user.id }, "Sending verification email");
 
       try {
         const message = await transporter.sendMail({
@@ -77,9 +78,11 @@ export class AuthService {
             <p>Please click the link below to verify your email address:</p>
             <a href="${verificationLink}">Verify Email</a>`,
         });
-        console.log("Email sent to", user.email);
         const previewUrl = nodemailer.getTestMessageUrl(message);
-        console.log(previewUrl);
+        logger.info(
+          { userId: user.id, messageId: message.messageId, previewUrl },
+          "Verification email sent",
+        );
         return {
           user: null,
           accessToken: null,
@@ -87,10 +90,9 @@ export class AuthService {
           previewUrl,
         };
       } catch (error) {
-        console.log(error);
+        logger.error({ err: error, userId: user.id }, "Failed to send verification email");
         throw new AppError("Failed to send verification email", 500);
-      }
-    }
+      }    }
 
     if (!user.is_active) {
       throw new AppError("Your account has been deactivated", 403);

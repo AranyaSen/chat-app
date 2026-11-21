@@ -6,6 +6,7 @@ import { authRoutes, conversationRoutes, userRoutes } from "./routes/index.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
+import { httpLogger } from "./middleware/httpLogger.middleware.js";
 
 const globalRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -28,6 +29,9 @@ export const createApp = () => {
 
   app.use(express.json());
   app.use(cookieParser());
+
+  // Logger
+  app.use(httpLogger);
   app.use(globalRateLimiter);
 
   // Health routes

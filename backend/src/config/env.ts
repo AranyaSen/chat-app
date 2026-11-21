@@ -25,6 +25,8 @@ export const envSchema = z.object({
   EMAIL_VERIFICATION_LINK: z.string({
     error: "EMAIL_VERIFICATION_LINK is required",
   }),
+
+  LOG_LEVEL: z.string({ error: "LOG_LEVEL is required" }).default("info"),
 });
 
 const parsed = envSchema.safeParse(process.env);
