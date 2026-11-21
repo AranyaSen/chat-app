@@ -4,7 +4,6 @@ import {
   findUserByEmailToken,
   findUserByUsernameOrEmail,
   requestChangeEmail,
-  updateEmailTokenHash,
   updateUserVerifiedStatus,
 } from "./auth.repo.js";
 import { LoginType, RegisterType } from "./auth.validation.js";
@@ -17,8 +16,7 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from "./auth.utils.js";
-import nodemailer from "nodemailer";
-import { logger } from "@/config/logger.js";
+import { sendEmail } from "@/utils/sendEmail.js";
 
 export class AuthService {
   static async register(data: RegisterType) {
@@ -39,8 +37,8 @@ export class AuthService {
       email: data.email,
       hashedPassword,
     });
-
-    return user;
+    const email = await sendEmail(user);
+    return email;
   }
 
   static async login(data: LoginType) {
@@ -61,38 +59,14 @@ export class AuthService {
     }
 
     if (user.is_active && !user.is_verified) {
-      const { hashedToken, token } = generateEmailToken();
-      const verificationLink = `${env.EMAIL_VERIFICATION_LINK}?token=${token}`;
-
-      await updateEmailTokenHash({ userEmail: user.email, hashedToken });
-
-      logger.info({ userId: user.id }, "Sending verification email");
-
-      try {
-        const message = await transporter.sendMail({
-          from: "Chat App <no-reply@test.chatapp.dev>",
-          to: user.email,
-          subject: "Verify your Email Address",
-          html: `
-            <h1>Welcome ${user.username}!</h1>
-            <p>Please click the link below to verify your email address:</p>
-            <a href="${verificationLink}">Verify Email</a>`,
-        });
-        const previewUrl = nodemailer.getTestMessageUrl(message);
-        logger.info(
-          { userId: user.id, messageId: message.messageId, previewUrl },
-          "Verification email sent",
-        );
-        return {
-          user: null,
-          accessToken: null,
-          refreshToken: null,
-          previewUrl,
-        };
-      } catch (error) {
-        logger.error({ err: error, userId: user.id }, "Failed to send verification email");
-        throw new AppError("Failed to send verification email", 500);
-      }    }
+      const email = await sendEmail(user);
+      return {
+        user: email.user,
+        previewUrl: email.previewUrl,
+        accessToken: null,
+        refreshToken: null,
+      };
+    }
 
     if (!user.is_active) {
       throw new AppError("Your account has been deactivated", 403);

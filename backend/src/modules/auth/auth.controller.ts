@@ -42,7 +42,7 @@ const clearAuthCookies = (res: Response) => {
 export const register = async (req: Request, res: Response) => {
   const { name, username, email, password } = req.body;
 
-  const user = await AuthService.register({
+  const { user, previewUrl } = await AuthService.register({
     name,
     username,
     email,
@@ -52,7 +52,7 @@ export const register = async (req: Request, res: Response) => {
   return res.status(201).json({
     success: true,
     message: "User created successfully",
-    data: user,
+    data: { user, testInboxUrl: previewUrl },
   });
 };
 
@@ -65,11 +65,12 @@ export const login = async (req: Request, res: Response) => {
       password,
     });
 
-  if (!user || !accessToken || !refreshToken) {
+  if (!accessToken || !refreshToken) {
     return res.status(200).json({
       success: true,
       message: "Please verify email",
       data: {
+        user: user,
         testInboxUrl: previewUrl,
       },
     });

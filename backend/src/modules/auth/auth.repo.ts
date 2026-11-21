@@ -97,7 +97,6 @@ export const createUser = async ({
   email: string;
   hashedPassword: string;
 }) => {
-  const userId = generateUserId();
   const newUser = await prisma.users.create({
     data: {
       name,
@@ -106,6 +105,7 @@ export const createUser = async ({
       password_hash: hashedPassword,
     },
     select: {
+      id: true,
       name: true,
       username: true,
       email: true,
