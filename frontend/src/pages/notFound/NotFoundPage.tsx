@@ -1,7 +1,7 @@
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import { AmbientBackground } from "@/components/layout/ambientBackground";
+import { AmbientBackground } from "@/components/layout/AmbientBackground";
 import { buttonVariants } from "@/components/ui/buttonVariants";
 import { cn } from "@/lib/cn";
 

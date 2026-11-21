@@ -4,7 +4,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { ConversationList } from "@/features/conversations/components/conversationList";
+import { ConversationList } from "@/features/conversations/components/ConversationList";
 import { useConversations } from "@/features/conversations/hooks/useConversations";
 import { useConversationsStore } from "@/stores/conversationsStore";
 import { useLogout } from "@/features/auth/hooks/useLogout";

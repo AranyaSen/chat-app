@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { AmbientBackground } from "@/components/layout/ambientBackground";
+import { AmbientBackground } from "@/components/layout/AmbientBackground";
 
 export function AuthLayout({ children }: { children: ReactNode }) {
   return (

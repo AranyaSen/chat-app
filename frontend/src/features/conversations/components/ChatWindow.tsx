@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { SendHorizonal, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { InlineAlert } from "@/components/feedback/inlineAlert";
+import { InlineAlert } from "@/components/feedback/InlineAlert";
 import { Spinner } from "@/components/ui/spinner";
 import { Avatar } from "@/components/ui/avatar";
 import { useConversationHistory } from "@/features/conversations/hooks/useConversationHistory";

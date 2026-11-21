@@ -1,8 +1,8 @@
 import { parseAsString, useQueryState } from "nuqs";
-import { AmbientBackground } from "@/components/layout/ambientBackground";
-import { ChatPlaceholder } from "@/features/conversations/components/chatPlaceholder";
-import { ChatSidebar } from "@/features/conversations/components/chatSidebar";
-import { ChatWindow } from "@/features/conversations/components/chatWindow";
+import { AmbientBackground } from "@/components/layout/AmbientBackground";
+import { ChatPlaceholder } from "@/features/conversations/components/ChatPlaceholder";
+import { ChatSidebar } from "@/features/conversations/components/ChatSidebar";
+import { ChatWindow } from "@/features/conversations/components/ChatWindow";
 import { useAuthStore } from "@/stores/authStore";
 import { useState } from "react";
 import { type UserSearchResult } from "@/features/user/types";

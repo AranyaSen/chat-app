@@ -2,33 +2,33 @@ import "@/lib/api.interceptors";
 import { lazy, Suspense } from "react";
 import { NuqsAdapter } from "nuqs/adapters/react-router/v7";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { AppLoader } from "@/components/feedback/appLoader";
-import { GuestRoute } from "@/components/routing/guestRoute";
-import { ProtectedRoute } from "@/components/routing/protectedRoute";
+import { AppLoader } from "@/components/feedback/AppLoader";
+import { GuestRoute } from "@/components/routing/GuestRoute";
+import { ProtectedRoute } from "@/components/routing/ProtectedRoute";
 import { AppBootstrap } from "./AppBootstrap";
 
 const ConversationsPage = lazy(() =>
-  import("@/pages/conversations/conversationsPage").then((module) => ({
+  import("@/pages/conversations/ConversationsPage").then((module) => ({
     default: module.ConversationsPage,
   })),
 );
 const LoginPage = lazy(() =>
-  import("@/pages/login/loginPage").then((module) => ({
+  import("@/pages/login/LoginPage").then((module) => ({
     default: module.LoginPage,
   })),
 );
 const NotFoundPage = lazy(() =>
-  import("@/pages/notFound/notFoundPage").then((module) => ({
+  import("@/pages/notFound/NotFoundPage").then((module) => ({
     default: module.NotFoundPage,
   })),
 );
 const RegisterPage = lazy(() =>
-  import("@/pages/register/registerPage").then((module) => ({
+  import("@/pages/register/RegisterPage").then((module) => ({
     default: module.RegisterPage,
   })),
 );
 const VerifyEmailPage = lazy(() =>
-  import("@/pages/verifyEmail/verifyEmailPage").then((module) => ({
+  import("@/pages/verifyEmail/VerifyEmailPage").then((module) => ({
     default: module.VerifyEmailPage,
   })),
 );

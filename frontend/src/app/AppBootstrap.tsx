@@ -1,6 +1,6 @@
 import { useEffect, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AppLoader } from "@/components/feedback/appLoader";
+import { AppLoader } from "@/components/feedback/AppLoader";
 import { userApi } from "@/features/user/api/user.api";
 import { useAuthStore } from "@/stores/authStore";
 import { socket } from "@/lib/socket";

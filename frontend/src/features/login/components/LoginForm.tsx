@@ -5,7 +5,7 @@ import { useQueryState } from "nuqs";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Field } from "@/components/forms/field";
+import { Field } from "@/components/forms/Field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
