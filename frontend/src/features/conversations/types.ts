@@ -10,7 +10,8 @@ export type ChatMessage = {
   sent_at: string;
   content: string | null;
   edited_at: string | null;
-  user: string;
+  sender_id: string;
+  user: string | { username: string; image?: string | null };
 };
 
 type LastMessagePreview = {

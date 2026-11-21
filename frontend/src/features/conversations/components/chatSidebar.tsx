@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { LogOut, Search, X } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { ConversationList } from "@/features/conversations/components/conversationList";
 import { useConversations } from "@/features/conversations/hooks/useConversations";
+import { useConversationsStore } from "@/stores/conversationsStore";
 import { useLogout } from "@/features/auth/hooks/useLogout";
 import type { AuthUser } from "@/features/auth/types/auth.types";
 import { useUserSearch } from "@/features/user/hooks/useUserSearch";
@@ -30,10 +31,22 @@ export function ChatSidebar({
   const searchTerm = useDebounce(searchInput.trim(), 400);
 
   const {
-    data: conversationsData,
     isPending: isLoadingConversations,
     isError: isConversationsError,
   } = useConversations();
+
+  const rawConversations = useConversationsStore((s) => s.conversations);
+  const showLoadingState = isLoadingConversations && rawConversations.length === 0;
+
+  const conversations = useMemo(
+    () =>
+      [...rawConversations].sort(
+        (a, b) =>
+          new Date(b.lastMessage?.sent_at ?? 0).getTime() -
+          new Date(a.lastMessage?.sent_at ?? 0).getTime(),
+      ),
+    [rawConversations],
+  );
 
   const {
     data: searchData,
@@ -43,8 +56,6 @@ export function ChatSidebar({
   } = useUserSearch(searchTerm);
 
   const { logout, isLoggingOut } = useLogout();
-
-  const conversations = conversationsData?.data ?? [];
   const results = searchData?.data ?? [];
   const isSearching = searchInput.trim() !== searchTerm || isSearchingUsers;
   const hasQuery = searchInput.trim().length > 0;
@@ -167,7 +178,7 @@ export function ChatSidebar({
           <ConversationList
             conversations={conversations}
             selectedConversationId={selectedConversationId}
-            isLoading={isLoadingConversations}
+            isLoading={showLoadingState}
             onSelectChatUser={onSelectChatUser}
             isError={isConversationsError}
           />

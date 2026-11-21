@@ -107,6 +107,7 @@ export class ConversationsRepo {
         sent_at: true,
         content: true,
         edited_at: true,
+        sender_id: true,
         user: {
           select: {
             username: true,

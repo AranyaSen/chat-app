@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { SendHorizonal, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
 import { InlineAlert } from "@/components/feedback/inlineAlert";
 import { Spinner } from "@/components/ui/spinner";
 import { Avatar } from "@/components/ui/avatar";
 import { useConversationHistory } from "@/features/conversations/hooks/useConversationHistory";
 import { useMessages } from "@/features/conversations/hooks/useMessages";
 import { useSendMessage } from "@/features/conversations/hooks/useSendMessage";
+import { useConversationsStore } from "@/stores/conversationsStore";
 import type { AuthUser } from "@/features/auth/types/auth.types";
 import type { UserSearchResult } from "@/features/user/types";
 import { cn } from "@/lib/cn";
@@ -38,7 +38,7 @@ export function ChatWindow({
   );
   const { messages } = useMessages(conversationId, initialMessages);
   const { send, isSending } = useSendMessage();
-  const queryClient = useQueryClient();
+  const updateLastMessage = useConversationsStore((s) => s.updateLastMessage);
 
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -68,7 +68,12 @@ export function ChatWindow({
     });
 
     if (!ack.ok) toast.error(ack.error ?? "Failed to send message.");
-    else queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    else if (ack.message && conversationId) {
+      updateLastMessage(conversationId, {
+        content: ack.message.content ?? undefined,
+        sent_at: ack.message.sent_at,
+      });
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -124,7 +129,7 @@ export function ChatWindow({
         {messages?.length > 0 ? (
           <div className="mx-auto flex max-w-3xl flex-col gap-2.5">
             {messages?.map((message) => {
-              const isMine = message.user === user.username;
+              const isMine = message.sender_id === user.id;
               return (
                 <div
                   key={message.id}
