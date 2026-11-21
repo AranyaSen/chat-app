@@ -29,7 +29,7 @@ export function ChatWindow({
 }: ChatWindowProps) {
   const {
     data: chatHistory,
-    isPending,
+    isLoading,
     isError,
   } = useConversationHistory(conversationId, selectedChatUser);
 
@@ -70,9 +70,11 @@ export function ChatWindow({
       conversationId,
       content,
     });
-
-    if (!ack.ok) toast.error(ack.error ?? "Failed to send message.");
-    else if (ack.message && conversationId) {
+    if (!ack.ok) {
+      toast.error(ack.error ?? "Failed to send message.");
+      return;
+    }
+    if (ack.message) {
       const conversation = conversationExists(conversationId);
       if (conversation) {
         updateLastMessage(conversationId, {
@@ -121,20 +123,17 @@ export function ChatWindow({
           </p>
         </div>
       </header>
-
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 scrollbar-subtle sm:px-6">
-        {isPending && conversationId ? (
+        {isLoading && conversationId ? (
           <div className="flex h-full items-center justify-center">
             <Spinner className="size-5" label="Loading conversation" />
           </div>
         ) : null}
-
         {isError ? (
           <InlineAlert tone="error" className="mx-auto max-w-md">
             Could not load this conversation. Please try again.
           </InlineAlert>
         ) : null}
-
         {messages?.length > 0 ? (
           <div className="mx-auto flex max-w-3xl flex-col gap-2.5">
             {messages?.map((message) => {
@@ -177,7 +176,7 @@ export function ChatWindow({
           </div>
         ) : null}
 
-        {messages?.length === 0 && !isPending ? (
+        {messages?.length === 0 && !isLoading ? (
           <div className="mx-auto mt-6 max-w-md">
             <div className="flex items-center justify-center gap-2 rounded-2xl border border-white/70 bg-white/45 px-4 py-3 text-[11px] text-muted-foreground">
               <Sparkles className="size-3.5" aria-hidden="true" />
