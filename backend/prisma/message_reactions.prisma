@@ -1,10 +1,13 @@
 model Message_Reactions {
     id         String   @id @default(uuid())
-    message_id String   @unique
-    user_id    String   @unique
-    reaction   String   @unique
+    message_id String
+    user_id    String
+    reaction   String
     created_at DateTime @default(now())
 
     // relations
-    user Users? @relation(fields: [user_id], references: [id], onDelete: Restrict)
+    user     Users?   @relation(fields: [user_id], references: [id], onDelete: Restrict)
+    messages Messages @relation(fields: [message_id], references: [id], onDelete: Cascade)
+
+    @@unique([message_id, user_id])
 }

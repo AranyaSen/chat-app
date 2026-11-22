@@ -113,6 +113,7 @@ export class ConversationsRepo {
             username: true,
           },
         },
+        messageReactions: true,
       },
     });
 
